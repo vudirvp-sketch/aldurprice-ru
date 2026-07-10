@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Solution>
+  <PropertyGroup>
+    <Name>AldurPrice</Name>
+  </PropertyGroup>
+  <Project Id="AldurPrice.Core"      Path="src/AldurPrice.Core/AldurPrice.Core.csproj" />
+  <Project Id="AldurPrice.Data"      Path="src/AldurPrice.Data/AldurPrice.Data.csproj" />
+  <Project Id="AldurPrice.Ocr"       Path="src/AldurPrice.Ocr/AldurPrice.Ocr.csproj" />
+  <Project Id="AldurPrice.Capture"   Path="src/AldurPrice.Capture/AldurPrice.Capture.csproj" />
+  <Project Id="AldurPrice"           Path="src/AldurPrice/AldurPrice.csproj" />
+  <Project Id="AldurPrice.Core.Tests" Path="tests/AldurPrice.Core.Tests/AldurPrice.Core.Tests.csproj" />
+</Solution>

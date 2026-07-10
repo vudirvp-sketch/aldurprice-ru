@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/Platform-Windows-0078D6)](https://learn.microsoft.com/dotnet/core/whats-new/dotnet-9)
-[![Status](https://img.shields.io/badge/Status-Planning-orange)](docs/05-ROADMAP.md)
+[![Status](https://img.shields.io/badge/Status-M0_Skeleton-yellow)](docs/05-ROADMAP.md)
 
 ## Что это
 
@@ -32,7 +32,7 @@
 
 ## Быстрый старт (для пользователей)
 
-> ⚠️ **Статус проекта:** в разработке. Бинарные релизы появятся после завершения [Milestone 1](docs/05-ROADMAP.md#m1--mvp-базовая-русификация-и-ocr).
+> ⚠️ **Статус проекта:** M0 (каркас проекта) готов. Бинарные релизы появятся после завершения [Milestone 1](docs/05-ROADMAP.md#m1--mvp-базовая-русификация-и-ocr). Текущее состояние — в [STATUS.md](STATUS.md).
 
 Когда проект будет готов, скачать можно будет тремя способами:
 

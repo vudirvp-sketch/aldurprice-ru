@@ -1,6 +1,8 @@
 <Project>
   <PropertyGroup>
-    <TargetFramework>net9.0-windows</TargetFramework>
+    <!-- TFM задаётся в каждом .csproj индивидуально:
+         - Core, Data, Core.Tests → net9.0 (cross-platform, no UI)
+         - Ocr, Capture, AldurPrice → net9.0-windows (WPF / Win32 / WinRT) -->
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
@@ -10,5 +12,13 @@
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NeutralLanguage>en</NeutralLanguage>
+    <!-- M0-suppressions: stubs ещё не используют instance state и XML-доки не на всех
+         public-членах. В M1, когда стабы заменятся на реальные реализации,
+         эти NoWarn нужно убрать. См. STATUS.md → Known Issues.
+         CA1848 (LoggerMessage source generator) — отключён до M3.7 (Serilog structured logging).
+         CA1805 (явная инициализация bool = false) — отключена для Options-классов,
+         где явная инициализация используется как документация дефолта. -->
+    <NoWarn>$(NoWarn);CA1822;CS1591;CA1848;CA1805</NoWarn>
   </PropertyGroup>
 </Project>

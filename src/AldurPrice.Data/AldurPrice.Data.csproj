@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>AldurPrice.Data</RootNamespace>
+    <Description>Persistence-слой AldurPrice: SQLite-кэш цен, миграции, репозитории.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AldurPrice.Core\AldurPrice.Core.csproj" />
+  </ItemGroup>
+
+</Project>

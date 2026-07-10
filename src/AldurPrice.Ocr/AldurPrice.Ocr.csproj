@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <RootNamespace>AldurPrice.Ocr</RootNamespace>
+    <UseWindowsForms>false</UseWindowsForms>
+    <UseWPF>false</UseWPF>
+    <Description>OCR-движки AldurPrice: Windows.Media.Ocr (primary) + Tesseract 5 (fallback).</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Tesseract" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AldurPrice.Core\AldurPrice.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,89 @@
+name: Translation quality
+
+# Проверка качества переводов: ключи .resx, размер rus.ndjson, runeshape-combinations.
+# Запускается на каждый PR, затрагивающий ocr/, src/AldurPrice/Resources/, scripts/check-translations.py.
+
+on:
+  pull_request:
+    paths:
+      - 'ocr/**'
+      - 'src/AldurPrice/Resources/**'
+      - 'scripts/check-translations.py'
+      - '.github/workflows/translations-quality.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check translation files exist
+        run: |
+          set -e
+          echo "::group::Check runeshape-combinations-ru.json"
+          if [ ! -f ocr/runeshape-combinations-ru.json ]; then
+            echo "::warning::ocr/runeshape-combinations-ru.json not found. Run scripts/parse-poe2db-runeshapes.py."
+          else
+            count=$(python3 -c "import json; print(len(json.load(open('ocr/runeshape-combinations-ru.json'))['combinations']))")
+            echo "Runeshape combinations: $count"
+            if [ "$count" -lt 80 ]; then
+              echo "::error::Expected 80+ runeshape combinations, got $count"
+              exit 1
+            fi
+          fi
+          echo "::endgroup::"
+
+          echo "::group::Check ocr/translations/*.ndjson"
+          for lang in eng rus; do
+            if [ ! -f "ocr/translations/${lang}.ndjson" ]; then
+              echo "::warning::ocr/translations/${lang}.ndjson not found. Run scripts/update-translations.py."
+            else
+              lines=$(wc -l < "ocr/translations/${lang}.ndjson")
+              echo "${lang}.ndjson: ${lines} lines"
+              if [ "$lines" -lt 4000 ] || [ "$lines" -gt 5000 ]; then
+                echo "::error::${lang}.ndjson has ${lines} lines, expected ~4319"
+                exit 1
+              fi
+            fi
+          done
+          echo "::endgroup::"
+
+      - name: Check .resx key consistency
+        run: |
+          set -e
+          # M2.1 work: когда появятся Strings.resx и Strings.ru.resx,
+          # этот шаг проверит, что все ключи из Strings.resx есть в Strings.ru.resx.
+          if [ ! -f src/AldurPrice/Resources/Strings.resx ]; then
+            echo "::notice::Strings.resx не найден — .resx-проверка будет включена в M2.1."
+            exit 0
+          fi
+          # TODO (M2.1): реализовать проверку через скрипт scripts/check-translations.py
+          echo "Strings.resx found — проверка .resx TBD в M2.1."
+
+      - name: Summary
+        run: |
+          echo "## Translation quality check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f ocr/runeshape-combinations-ru.json ]; then
+            count=$(python3 -c "import json; print(len(json.load(open('ocr/runeshape-combinations-ru.json'))['combinations']))")
+            echo "- ✅ Runeshape combinations: $count" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ⚠️ Runeshape combinations: файл отсутствует" >> $GITHUB_STEP_SUMMARY
+          fi
+          for lang in eng rus; do
+            if [ -f "ocr/translations/${lang}.ndjson" ]; then
+              lines=$(wc -l < "ocr/translations/${lang}.ndjson")
+              echo "- ✅ ${lang}.ndjson: $lines строк" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- ⚠️ ${lang}.ndjson: файл отсутствует" >> $GITHUB_STEP_SUMMARY
+            fi
+          done

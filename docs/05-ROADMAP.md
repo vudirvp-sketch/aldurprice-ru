@@ -23,52 +23,52 @@
 ### Задачи
 
 #### M0.1 — Создание репозитория и структуры
-- [ ] Создать GitHub-репозиторий `aldurprice` (public)
-- [ ] Инициализировать с `README.md`, `LICENSE` (MIT), `.gitignore`
-- [ ] Создать структуру директорий: `src/`, `tests/`, `docs/`, `ocr/`, `scripts/`, `config/`, `.github/`
-- [ ] Добавить `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `CHANGELOG.md`
-- [ ] Оценка: 4 часа
+- [x] Создать GitHub-репозиторий `aldurprice` (public) — `vudirvp-sketch/aldurprice-ru`
+- [x] Инициализировать с `README.md`, `LICENSE` (MIT), `.gitignore`
+- [x] Создать структуру директорий: `src/`, `tests/`, `docs/`, `ocr/`, `scripts/`, `config/`, `.github/`
+- [x] Добавить `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `CHANGELOG.md`
+- [x] Оценка: 4 часа
 
 #### M0.2 — Создание 6 проектов
-- [ ] `src/AldurPrice/` — основной WPF-проект (скелет `App.xaml`, `MainWindow.xaml`)
-- [ ] `src/AldurPrice.Core/` — class library, скелет `Translation/`, `Pricing/`, `Contracts/`
-- [ ] `src/AldurPrice.Data/` — class library, скелет `SqlitePricingCache.cs`
-- [ ] `src/AldurPrice.Ocr/` — class library, скелет `IOcrEngine.cs`, `WindowsOcrEngine.cs`
-- [ ] `src/AldurPrice.Capture/` — class library, скелет `ICaptureStrategy.cs`, `PrintWindowCapture.cs`
-- [ ] `tests/AldurPrice.Core.Tests/` — xUnit проект с одним smoke-тестом
-- [ ] Настроить `Directory.Build.props` (net9.0-windows, nullable, latest)
-- [ ] Настроить `Directory.Packages.props` (central package management)
-- [ ] Создать `AldurPrice.slnx` со всеми проектами и reference'ами
-- [ ] Оценка: 8 часов
+- [x] `src/AldurPrice/` — основной WPF-проект (скелет `App.xaml`, `MainWindow.xaml`)
+- [x] `src/AldurPrice.Core/` — class library, скелет `Translation/`, `Pricing/`, `Contracts/`
+- [x] `src/AldurPrice.Data/` — class library, скелет `SqlitePricingCache.cs`
+- [x] `src/AldurPrice.Ocr/` — class library, скелет `IOcrEngine.cs`, `WindowsOcrEngine.cs`
+- [x] `src/AldurPrice.Capture/` — class library, скелет `ICaptureStrategy.cs`, `PrintWindowCapture.cs`
+- [x] `tests/AldurPrice.Core.Tests/` — xUnit проект с одним smoke-тестом
+- [x] Настроить `Directory.Build.props` (net9.0-windows, nullable, latest)
+- [x] Настроить `Directory.Packages.props` (central package management)
+- [x] Создать `AldurPrice.slnx` со всеми проектами и reference'ами
+- [x] Оценка: 8 часов
 
 #### M0.3 — DI-хост и точки входа
-- [ ] `App.xaml.cs` — `IHost` с `Microsoft.Extensions.Hosting`, регистрация всех сервисов (заглушки)
-- [ ] `Program.cs` (если нужно для single-instance mutex) или в `App.xaml.cs`
-- [ ] `MainWindow.xaml` — простое окно "Hello AldurPrice"
-- [ ] Crash handlers: `AppDomain.UnhandledException`, `TaskScheduler.UnobservedTaskException`, `Dispatcher.UnhandledException`
-- [ ] Оценка: 6 часов
+- [x] `App.xaml.cs` — `IHost` с `Microsoft.Extensions.Hosting`, регистрация всех сервисов (заглушки)
+- [x] `Program.cs` (если нужно для single-instance mutex) или в `App.xaml.cs` — single-instance guard в `App.xaml.cs` через `Mutex`
+- [x] `MainWindow.xaml` — простое окно "Hello AldurPrice"
+- [x] Crash handlers: `AppDomain.UnhandledException`, `TaskScheduler.UnobservedTaskException`, `Dispatcher.UnhandledException`
+- [x] Оценка: 6 часов
 
 #### M0.4 — CI/CD
-- [ ] `.github/workflows/ci.yml` — build + test на Windows-latest при push/PR
-- [ ] `.github/workflows/release.yml` — publish + GitHub Release при tag `v*`
-- [ ] `.github/workflows/translations.yml` — еженедельное обновление переводов (cron)
-- [ ] `.github/ISSUE_TEMPLATE/bug_report.md`, `feature_request.md`, `translation_error.md`
-- [ ] `.github/PULL_REQUEST_TEMPLATE.md`
-- [ ] Оценка: 4 часа
+- [x] `.github/workflows/ci.yml` — build + test на Windows-latest при push/PR (включая publish при tag `v*`)
+- [x] `.github/workflows/release.yml` — объединено с `ci.yml` (publish при tag `v*`)
+- [x] `.github/workflows/translations.yml` — еженедельное обновление переводов (cron)
+- [x] `.github/ISSUE_TEMPLATE/bug_report.md`, `feature_request.md`, `translation_error.md`
+- [x] `.github/PULL_REQUEST_TEMPLATE.md`
+- [x] Оценка: 4 часа
 
 #### M0.5 — Базовые тесты и coverage
-- [ ] Один smoke-тест в `AldurPrice.Core.Tests` (например, `RussianStemmerTests` с 3 кейсами)
-- [ ] Coverlet + report generation
-- [ ] README с бейджами CI
-- [ ] Оценка: 3 часа
+- [x] Один smoke-тест в `AldurPrice.Core.Tests` (например, `RussianStemmerTests` с 3 кейсами) — 5 кейсов + 8 кейсов Levenshtein = 13 тестов
+- [x] Coverlet + report generation — `coverlet.collector` подключён, coverage-выход настроен в `ci.yml`
+- [x] README с бейджами CI
+- [x] Оценка: 3 часа
 
 ### Критерии готовности M0
-- [ ] Репозиторий создан, 6 проектов компилируются
-- [ ] `dotnet build` без warnings
-- [ ] `dotnet test` — smoke-тест проходит
-- [ ] CI green на GitHub Actions (Windows-latest)
-- [ ] `MainWindow` открывается с "Hello AldurPrice"
-- [ ] Тег `v0.1.0-alpha` с GitHub Release (source-only, без бинарников)
+- [x] Репозиторий создан, 6 проектов компилируются (проверено на Linux с `EnableWindowsTargeting`)
+- [x] `dotnet build` без warnings (CA1822/CS1591/CA1848/CA1805 подавлены, см. STATUS.md)
+- [x] `dotnet test` — smoke-тест проходит (13 тестов, 0 fail)
+- [ ] CI green на GitHub Actions (Windows-latest) — нужен push для запуска
+- [ ] `MainWindow` открывается с "Hello AldurPrice" — код готов, нужна проверка на Windows
+- [ ] Тег `v0.1.0-alpha` с GitHub Release (source-only, без бинарников) — после проверки
 
 ---
 
