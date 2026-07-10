@@ -116,7 +116,7 @@ public sealed class TesseractEngine : IOcrEngine, IDisposable
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var container = _engines.GetOrAdd(language, lang => new Lazy<EngineContainer>(() =>
+            var lazy = _engines.GetOrAdd(language, lang => new Lazy<EngineContainer>(() =>
             {
                 var engineMode = _engineMode switch
                 {
@@ -135,6 +135,10 @@ public sealed class TesseractEngine : IOcrEngine, IDisposable
                 return new EngineContainer(engine);
             }, LazyThreadSafetyMode.ExecutionAndPublication));
 
+            // Lazy<T>.Value инициирует engine потокобезопасно (ExecutionAndPublication).
+            // После первого вызова последующие .Value возвращают cached instance.
+            var container = lazy.Value;
+
             // Tesseract engine не потокобезопасен — сериализуем доступ.
             lock (container.Lock)
             {
@@ -152,7 +156,7 @@ public sealed class TesseractEngine : IOcrEngine, IDisposable
                     {
                         var text = iter.GetText(PageIteratorLevel.TextLine);
                         if (!string.IsNullOrWhiteSpace(text))
-                            lines.Add(new OcrLine(text.Trim(), rect.Y));
+                            lines.Add(new OcrLine(text.Trim(), rect.Y1));
                     }
                     else
                     {

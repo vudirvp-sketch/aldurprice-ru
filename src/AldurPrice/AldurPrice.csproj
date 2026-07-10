@@ -2,7 +2,11 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows</TargetFramework>
+    <!-- net9.0-windows10.0.19041.0: должен соответствовать старшей TFM среди зависимостей.
+         AldurPrice.Ocr требует net9.0-windows10.0.19041.0 (Windows.Media.Ocr / WinRT).
+         При net9.0-windows (= 7.0) restore падает с NU1201: consumer ниже зависимости. -->
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     <RootNamespace>AldurPrice</RootNamespace>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>false</UseWindowsForms>

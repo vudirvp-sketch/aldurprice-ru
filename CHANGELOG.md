@@ -5,6 +5,26 @@
 
 ## [Unreleased]
 
+### Fixed — M1.4-fix: NU1201 + скрытые баги M1.3
+
+После M1.4 commit-а первая попытка `dotnet build` на Windows падала с `NU1201`. После починки restore вскрылись ещё 2 скрытых бага в `AldurPrice.Ocr` (код M1.3 никогда не компилировался — restore падал раньше компиляции) и 3 бага в `RussianOcrPostProcessor` (тесты M1.3 никогда не запускались по той же причине). Все 6 багов починены в этой итерации.
+
+- **NU1201 — TFM mismatch** (`src/AldurPrice/AldurPrice.csproj`): `TargetFramework` поднят с `net9.0-windows` (= `net9.0-windows7.0`) до `net9.0-windows10.0.19041.0` + добавлен `<SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>`. Главный WPF-проект обязан иметь TFM ≥ старшей TFM среди зависимостей; `AldurPrice.Ocr` требует `net9.0-windows10.0.19041.0` (WinRT для `Windows.Media.Ocr`). `AldurPrice.Capture` / `AldurPrice.Capture.Tests` оставлены на `net9.0-windows` — им WinRT не нужен. Комментарий в `Directory.Build.props` обновлён. См. KI-014 в STATUS.md.
+- **CS0185 + CS1061 — TesseractEngine.cs не компилировался** (`src/AldurPrice.Ocr/TesseractEngine.cs`):
+  - `var container = _engines.GetOrAdd(...)` возвращал `Lazy<EngineContainer>`, но код обращался к `container.Lock` и `container.Engine` напрямую (без `.Value`). `lock (container.Lock)` падал с CS0185 (method group is not a reference type), `container.Engine.Process(img)` — с CS1061.
+  - **Fix:** `container` переименован в `lazy`, добавлено `var container = lazy.Value;` (Lazy<T>.Value потокобезопасно инициирует engine через `LazyThreadSafetyMode.ExecutionAndPublication` — паттерн уже использовался в `Dispose()` line 185: `kv.Value.Value.Engine.Dispose()`).
+  - **Fix:** `rect.Y` → `rect.Y1`. Tesseract NuGet 5.2.0 `Rect` struct имеет свойства `X1, Y1, X2, Y2, Width, Height` (НЕ `X, Y`). `Y1` = верхняя граница bounding box — то, что нужно для `OcrLine.Y`.
+  - См. KI-015 в STATUS.md.
+- **3 failing теста в RussianOcrPostProcessorTests** (`src/AldurPrice.Core/Translation/RussianOcrPostProcessor.cs`):
+  - `TrimStrayPunctuation` удалял stray-символы (`-`, `|`, `·`, `•`, `_`), но не тримил whitespace, оголявшийся после них: `"- Руна огня -"` → `" Руна огня "` вместо `"Руна огня"`.
+  - `CollapseWhitespace` удалял пробел ПЕРЕД `\n`, но не ПОСЛЕ: `"Руна \n огня"` → `"Руна\n огня"` вместо `"Руна\nогня"`.
+  - **Fix:** `TrimStrayPunctuation` — `while (... && (IsStray(...) || char.IsWhiteSpace(...)))` на обоих концах. `CollapseWhitespace` — `prevSpace = true` после `sb.Append('\n')` (следующий пробел схлопывается).
+  - См. KI-016 в STATUS.md.
+
+**Результат верификации (Linux с `-p:EnableWindowsTargeting=true`):**
+- `dotnet build AldurPrice.slnx` — 0 errors, 0 warnings.
+- `dotnet test` — 165 total: 140 Core.Tests passed (0 failed), 25 Capture.Tests (24 passed, 1 failed — Linux-only `DllNotFoundException: user32.dll` на `IsWindow` P/Invoke, на Windows ожидаемо passed).
+
 ### Added — M1.4: Захват экрана (частично)
 
 - **`src/AldurPrice.Capture/PrintWindowCapture.cs`** — реальная имплементация (был M0 stub):

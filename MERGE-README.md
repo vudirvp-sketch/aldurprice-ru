@@ -1,74 +1,55 @@
-# AldurPrice M1.3 — OCR Engines Package
+# AldurPrice M1.4-fix — NU1201 + скрытые баги M1.3
 
-This archive contains the **delta files** for the M1.3 iteration of AldurPrice.
+Archive содержит delta-файлы для починки сборки после M1.4 commit-а.
+
+## Что в архиве
+
+6 изменённых файлов (новых нет):
+
+| Файл | Изменение |
+|---|---|
+| `src/AldurPrice/AldurPrice.csproj` | TFM `net9.0-windows` → `net9.0-windows10.0.19041.0` + `SupportedOSPlatformVersion`. Fix NU1201. |
+| `src/AldurPrice.Ocr/TesseractEngine.cs` | `Lazy<EngineContainer>.Value` unwrap + `rect.Y` → `rect.Y1`. Fix CS0185/CS1061. |
+| `src/AldurPrice.Core/Translation/RussianOcrPostProcessor.cs` | `TrimStrayPunctuation` тримит whitespace + `CollapseWhitespace` схлопывает пробел после `\n`. Fix 3 failing теста. |
+| `Directory.Build.props` | Комментарий TFM-карты обновлён. |
+| `STATUS.md` | KI-014/015/016 (RESOLVED), KI-003 дополнен, build/test counts обновлены (165 total). |
+| `CHANGELOG.md` | Fixed-секция под `[Unreleased]`. |
 
 ## How to apply
 
-1. Extract this archive in your local `aldurprice-ru` repository root (overwrites existing files):
+1. Распаковать архив в корень локального `aldurprice-ru` (поверх существующих файлов):
    ```powershell
-   cd C:\path\to\aldurprice-ru
-   tar -xzf aldurprice-m1.3-ocr-engines.tar.gz
+   cd C:\Users\fallo\OneDrive\Desktop\repo\aldurprice-ru
+   tar -xzf aldurprice-m1.4-fix.tar.gz
    ```
-   On Windows: use 7-Zip or `tar` (built into Windows 10 1809+).
+   На Windows 10 1809+ `tar` встроен. Альтернатива — 7-Zip.
 
-2. Verify the structure: the archive contains files at their repo-relative paths,
-   e.g. `src/AldurPrice.Ocr/OcrPipeline.cs` should land in `aldurprice-ru/src/AldurPrice.Ocr/OcrPipeline.cs`.
+2. Проверить структуру: архив хранит пути относительно корня репо (например `src/AldurPrice/AldurPrice.csproj`).
 
-3. Build and test:
+3. Сборка и тесты:
    ```powershell
-   dotnet build AldurPrice.slnx -p:EnableWindowsTargeting=true
-   dotnet test tests/AldurPrice.Core.Tests
+   dotnet build AldurPrice.slnx
+   dotnet test
    ```
-   Expected: build OK with only CS1591 warnings; 129 tests pass.
+   Ожидается: build 0 errors / 0 warnings; **165 passed, 0 failed** (140 Core.Tests + 25 Capture.Tests).
 
-4. (Optional) Download Tesseract traineddata for fallback OCR (see KI-009 in STATUS.md):
-   ```powershell
-   mkdir ocr\tesseract -Force
-   Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata" -OutFile "ocr/tesseract/eng.traineddata"
-   Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata_best/raw/main/rus.traineddata" -OutFile "ocr/tesseract/rus.traineddata"
-   ```
+4. Если на Windows `dotnet test` покажет меньше 165 — проверить, что нет дополнительных failing тестов сверх перечисленных в KI-014/015/016. На Linux 1 тест `TryLocate_SecondCall_WhenCachedHwndBecomesInvalid_Rescans` падает с `DllNotFoundException: user32.dll` — это ожидаемо (P/Invoke Windows-only).
 
-## What's new in M1.3
+## Что починено
 
-- **New files** (6):
-  - `src/AldurPrice.Core/Translation/RussianOcrPostProcessor.cs` — text post-processing (Ё→Е, quotes, etc.)
-  - `src/AldurPrice.Ocr/ImagePreprocessor.cs` — bitmap preprocessing (color filter + binarization)
-  - `src/AldurPrice.Ocr/LeaguePanelDetector.cs` — panel-open detection (RGB heuristic)
-  - `src/AldurPrice.Ocr/OcrPipeline.cs` — orchestrator (panel-detect → preprocess → OCR → postprocess)
-  - `src/AldurPrice.Ocr/OcrPreprocessOptions.cs` — config records for preprocessing
-  - `tests/AldurPrice.Core.Tests/RussianOcrPostProcessorTests.cs` — 23 tests
+- **NU1201** при restore: главный проект не мог ссылаться на `AldurPrice.Ocr` из-за TFM-несовместимости. См. KI-014.
+- **3 compile-error'а в TesseractEngine.cs** (CS0185 + 2× CS1061): код M1.3 никогда не компилировался — restore падал раньше. См. KI-015.
+- **3 failing теста в RussianOcrPostProcessorTests**: тесты M1.3 никогда не запускались по той же причине. См. KI-016.
 
-- **Modified files** (11):
-  - `src/AldurPrice.Ocr/WindowsOcrEngine.cs` — real impl (was stub)
-  - `src/AldurPrice.Ocr/TesseractEngine.cs` — real impl with lazy init + thread safety (was stub)
-  - `src/AldurPrice.Ocr/AldurPrice.Ocr.csproj` — TFM changed to net9.0-windows10.0.19041.0, +System.Drawing.Common, +AllowUnsafeBlocks
-  - `src/AldurPrice/App.xaml.cs` — DI registrations for new services
-  - `Directory.Build.props` — updated NoWarn comment (CA1822 stays, see KI-001)
-  - `Directory.Packages.props` — added System.Drawing.Common 9.0.0
-  - `STATUS.md`, `CHANGELOG.md`, `docs/02-ARCHITECTURE.md`, `docs/04-RU-LOCALIZATION.md`, `docs/05-ROADMAP.md`
+Подробности — в `CHANGELOG.md` → `[Unreleased]` → `Fixed — M1.4-fix` и в `STATUS.md` → `Known Issues` → KI-014/015/016.
 
-See CHANGELOG.md and STATUS.md for full details.
+## Точка остановки
 
-## Stopping point
+- **Сделано:** NU1201 + 5 скрытых багов починены. Build 0 errors / 0 warnings. Unit-тесты 164/165 на Linux (1 ожидаемо падает на P/Invoke).
+- **Не сделано (в следующей итерации):**
+  1. **Windows runtime-верификация M0** — `dotnet run --project src/AldurPrice` → проверить тёмное окно «Hello AldurPrice» → tag `v0.1.0-alpha`.
+  2. **Windows runtime-верификация M1.4** — запустить PoE2, проверить `Poe2WindowLocator.TryLocate()` через debug-лог. Если имя процесса отличается — обновить `DefaultProcessNames` (см. KI-013).
+  3. (Опционально) Smoke-test `PrintWindowCapture.CaptureAsync` с регионом `{0,0,800,600}` — сохранить PNG, проверить, что не чёрный прямоугольник.
+  4. **M1.5** — `Poe2ScoutClient`, `PoeNinjaClient` через `IHttpClientFactory`, WireMock.Net-тесты, загрузка `rus.ndjson` из Exiled Exchange 2 (4319 предметов) → `TranslationCache`.
 
-See end of this README and STATUS.md → "Что в работе" / "Что дальше" for the next iteration plan.
-
-**Made in M1.3:**
-- M1.3 OCR engines (Windows + Tesseract) — real implementations
-- ImagePreprocessor, LeaguePanelDetector, OcrPipeline
-- RussianOcrPostProcessor with 23 tests
-- Updated docs (AD-001, AD-002 resolved; AD-003, AD-004 added)
-- KI-009..KI-012 added
-
-**Not done (intentionally deferred):**
-- Windows verification of M0 (run dotnet run on Windows, tag v0.1.0-alpha)
-- OcrLeagueWindowReader, ResolutionProfiles — deferred to M1.10
-- OcrTextPostProcessor (language-agnostic version) — RussianOcrPostProcessor covers base case
-- MSBuild target EnsureTessData — deferred to M1.10 (manual download as workaround)
-- OCR tests on net9.0-windows test project — deferred to M1.10
-- Real screenshot fixtures — deferred to M1.10
-
-**Next iteration:**
-1. Windows verification: `dotnet build` + `dotnet test tests/AldurPrice.Core.Tests` (expect 129 pass)
-2. M1.4 — Capture layer (PrintWindowCapture, Poe2WindowLocator)
-3. Then M1.5 (pricing sources + rus.ndjson) — biggest unblocker for end-to-end
+См. `STATUS.md` → «Что в работе» / «Что дальше».

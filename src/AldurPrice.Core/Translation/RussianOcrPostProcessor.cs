@@ -145,11 +145,12 @@ public sealed class RussianOcrPostProcessor
             else if (ch == '\n')
             {
                 // Сохраняем переводы строк — они значимы для OcrPipeline (разделяют line-ы).
-                // Но убираем пробел перед \n.
+                // Убираем пробел перед \n и запрещаем пробел сразу после \n
+                // (prevSpace=true → следующий пробел будет пропущен).
                 if (sb.Length > 0 && sb[^1] == ' ')
                     sb.Length--;
                 sb.Append('\n');
-                prevSpace = false;
+                prevSpace = true;
             }
             else
             {
@@ -163,15 +164,18 @@ public sealed class RussianOcrPostProcessor
     private static string TrimStrayPunctuation(string input)
     {
         // Удалить ведущие/хвостовые одиночные дефисы, точки, запятые, скобки,
-        // маркеры списков, если в строке есть хотя бы один «нормальный» символ.
+        // маркеры списков, а также оголяющиеся после них пробелы —
+        // если в строке есть хотя бы один «нормальный» символ.
+        // Без trim whitespace после удаления stray-пунктуаций оставались бы
+        // висячие пробелы: "- Руна -" → " Руна " вместо "Руна".
         if (string.IsNullOrEmpty(input))
             return input;
 
         var start = 0;
         var end = input.Length;
-        while (start < end && IsStray(input[start]))
+        while (start < end && (IsStray(input[start]) || char.IsWhiteSpace(input[start])))
             start++;
-        while (end > start && IsStray(input[end - 1]))
+        while (end > start && (IsStray(input[end - 1]) || char.IsWhiteSpace(input[end - 1])))
             end--;
 
         return start >= end ? string.Empty : input[start..end];

@@ -20,15 +20,16 @@
 | M1.9 — Конфигурация | ⏳ | `SettingsController`, `Poe2ConfigFile`. |
 | M1.10 — Тесты на реальных скриншотах | ⏳ | 10+ PNG-фикстур с RU-клиента. |
 
-**Сборка:** `dotnet build AldurPrice.slnx -p:EnableWindowsTargeting=true` — 0 errors (warnings только CS1591 на недокументированных public API).
-**Тесты:** `dotnet test` — 154 passed (129 Core.Tests + 25 новых Capture.Tests), 0 failed. На Linux доступен только `Core.Tests`; `Capture.Tests` требует `net9.0-windows`.
+**Сборка:** `dotnet build AldurPrice.slnx` (Windows) или `dotnet build AldurPrice.slnx -p:EnableWindowsTargeting=true` (Linux, без run) — 0 errors, 0 warnings.
+**Тесты:** `dotnet test` — 165 total: 140 Core.Tests (кроссплатформенные) + 25 Capture.Tests (только Windows — P/Invoke `user32.dll`). На Linux 1 Capture-тест падает на `IsWindow` (ожидаемо); на Windows ожидается 165/165 passed.
 
 ## Что в работе
 
+- **Сборка + unit-тесты верифицированы на Linux** (с `-p:EnableWindowsTargeting=true`): 0 errors, 0 warnings, 164/165 тестов green (1 Linux-only ожидаемый fail — P/Invoke `user32.dll`). На Windows нужна финальная проверка 165/165 и runtime-смоук.
 - **M0 релиз (pending)**: запустить `dotnet run --project src/AldurPrice` на Windows 10/11, проверить тёмное окно с «Hello AldurPrice», поставить тег `v0.1.0-alpha`.
-- **M1.4 Windows-верификация (next)**:
-  1. На Windows: `dotnet build AldurPrice.slnx` — проверить, что компилируется без ошибок (особенно `PrintWindowCapture` с P/Invoke и `System.Drawing.Common`).
-  2. `dotnet test` — все 154 тест-кейса (Core.Tests + Capture.Tests) должны быть green.
+- **M1.4 Windows runtime-верификация (next)**:
+  1. На Windows: `dotnet build AldurPrice.slnx` — должно быть 0 errors (проверено на Linux с `EnableWindowsTargeting`).
+  2. `dotnet test` — все 165 тест-кейсов (140 Core.Tests + 25 Capture.Tests) должны быть green.
   3. Запустить PoE2, проверить через debug-лог, что `Poe2WindowLocator.TryLocate()` находит окно (имя процесса может отличаться — см. KI-013).
   4. (Опционально) Smoke-test: вызвать `PrintWindowCapture.CaptureAsync` с регионом `{0,0,800,600}` и сохранить PNG — проверить, что не чёрный прямоугольник.
 
@@ -53,6 +54,42 @@
 
 ## Known Issues
 
+### KI-014: ✅ РЕШЕНО — NU1201 при restore (TFM mismatch)
+
+**Симптом:** `dotnet build AldurPrice.slnx` на Windows падал с `error NU1201: Проект AldurPrice.Ocr несовместим с net9.0-windows7.0. Проект AldurPrice.Ocr поддерживает: net9.0-windows10.0.19041.0`.
+
+**Причина:** `AldurPrice.csproj` (главный WPF-проект) целится в `net9.0-windows` (= `net9.0-windows7.0`), но ссылается на `AldurPrice.Ocr` с TFM `net9.0-windows10.0.19041.0` (WinRT для `Windows.Media.Ocr`). Consumer обязан иметь TFM ≥ старшей TFM зависимости.
+
+**Решение:** `AldurPrice.csproj` переведён на `net9.0-windows10.0.19041.0` + `SupportedOSPlatformVersion=10.0.19041.0`. `AldurPrice.Capture` и `AldurPrice.Capture.Tests` оставлены на `net9.0-windows` (им WinRT не нужен — только Win32 P/Invoke). Комментарий в `Directory.Build.props` обновлён.
+
+### KI-015: ✅ РЕШЕНО — TesseractEngine.cs не компилировался (CS0185, CS1061, CS1061)
+
+**Симптом:** После починки NU1201 обнаружились 3 compile-error'а в `TesseractEngine.cs`:
+1. CS0185: `lock (container.Lock)` — `container` имеет тип `Lazy<EngineContainer>`, а не `EngineContainer`. `lock` требует reference type.
+2. CS1061: `container.Engine.Process(img)` — у `Lazy<EngineContainer>` нет свойства `Engine`.
+3. CS1061: `rect.Y` — у Tesseract `Rect` нет свойства `Y` (есть `Y1`/`Y2`/`Width`/`Height`).
+
+**Причина:** Баг был скрыт до M1.4-fix, потому что restore падал на NU1201 до компиляции. Код M1.3 никогда не компилировался — ни на Linux, ни на Windows (на Linux `AldurPrice.Ocr` требует `EnableWindowsTargeting`, на Windows restore падал).
+
+**Решение:**
+- `container` переименован в `lazy`, добавлено `var container = lazy.Value;` (Lazy<T>.Value потокобезопасно инициирует engine через `LazyThreadSafetyMode.ExecutionAndPublication` — паттерн уже использовался в `Dispose()` на line 185: `kv.Value.Value.Engine.Dispose()`).
+- `rect.Y` → `rect.Y1` (верхняя граница bounding box — то, что нужно для `OcrLine.Y`).
+
+### KI-016: ✅ РЕШЕНО — RussianOcrPostProcessor: 3 failing теста
+
+**Симптом:** 3 теста в `RussianOcrPostProcessorTests` падали:
+1. `ProcessLine_TrimsStrayPunctuation("- Руна огня -", "Руна огня")` → actual `" Руна огня "`.
+2. `ProcessLine_TrimsSpaceBeforeNewline` (input `"Руна \n огня"`) → actual `"Руна\n огня"` (пробел после `\n` не удалялся).
+3. `ProcessLine_OnlyStrayPunctuation_ReturnsEmpty` (input `"- - - | · •"`) → actual `" - - "`.
+
+**Причина:** (1)+(3) `TrimStrayPunctuation` удалял stray-символы (`-`, `|`, `·`, `•`, `_`), но не тримил whitespace, оголявшийся после них. (2) `CollapseWhitespace` удалял пробел ПЕРЕД `\n`, но не ПОСЛЕ (`prevSpace = false` вместо `true` после append `\n`).
+
+**Решение:**
+- `TrimStrayPunctuation`: `while (start < end && (IsStray(input[start]) || char.IsWhiteSpace(input[start])))` — одновременно stray и whitespace на обоих концах.
+- `CollapseWhitespace`: `prevSpace = true` после `sb.Append('\n')` — следующий пробел схлопывается.
+
+Все 3 теста теперь green. На Windows 165/165, на Linux 164/165 (Capture-тест с P/Invoke `user32.dll` ожидаемо падает — см. KI-003).
+
 ### KI-001: Подавлены анализаторы CA1822, CS1591, CA1848, CA1805
 
 **Симптом:** `Directory.Build.props` содержит `<NoWarn>$(NoWarn);CA1822;CS1591;CA1848;CA1805</NoWarn>`.
@@ -71,11 +108,11 @@
 
 ### KI-003: WPF-проекты не собираются на Linux без `EnableWindowsTargeting`
 
-**Симптом:** `dotnet build src/AldurPrice` на Linux падает с `NETSDK1100`.
+**Симптом:** `dotnet build src/AldurPrice` на Linux падает с `NETSDK1100`. Один Capture-тест (`TryLocate_SecondCall_WhenCachedHwndBecomesInvalid_Rescans`) падает на Linux с `DllNotFoundException: user32.dll`.
 
-**Причина:** Дизайн-решение. WPF требует Windows. `AldurPrice.Core` — `net9.0` (cross-platform), `AldurPrice.Data` — `net9.0`, `AldurPrice.Ocr` — `net9.0-windows10.0.19041.0` (WinRT для Windows.Media.Ocr), `AldurPrice.Capture`, `AldurPrice` — `net9.0-windows`.
+**Причина:** Дизайн-решение. WPF и Win32 P/Invoke требуют Windows. `AldurPrice.Core` — `net9.0` (cross-platform), `AldurPrice.Data` — `net9.0`, `AldurPrice.Capture`, `AldurPrice.Capture.Tests` — `net9.0-windows` (Win32 P/Invoke), `AldurPrice.Ocr`, `AldurPrice` — `net9.0-windows10.0.19041.0` (WinRT для Windows.Media.Ocr).
 
-**План:** Не баг. Для разработки Core-логики на Linux: `dotnet test tests/AldurPrice.Core.Tests`. Для полной сборки: `dotnet build AldurPrice.slnx -p:EnableWindowsTargeting=true`.
+**План:** Не баг. Для разработки Core-логики на Linux: `dotnet test tests/AldurPrice.Core.Tests`. Для полной сборки: `dotnet build AldurPrice.slnx -p:EnableWindowsTargeting=true` (build + 164/165 тестов проходят; 1 Capture-тест с P/Invoke `IsWindow` пропускается на Linux, проходит на Windows).
 
 ### KI-004: `appsettings.json` copy-on-build стратегия
 
@@ -227,8 +264,8 @@ Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata_best/raw/main/
 
 ## Environment
 
-- **.NET SDK:** 9.0.300 (проверено на Linux x64; на Windows нужна 9.0.x)
-- **OS для dev:** Linux работает для `Core`/`Core.Tests`; Windows нужен для `Ocr` (WinRT), `Capture`, `AldurPrice` (WPF) и runtime-проверки
-- **Целевая платформа:** .NET 9, WPF, net9.0-windows10.0.19041.0 (для AldurPrice.Ocr — WinRT API)
+- **.NET SDK:** 9.0.300+ (проверено на Linux x64 с 9.0.315; на Windows любая 9.0.x)
+- **OS для dev:** Linux — `dotnet build -p:EnableWindowsTargeting=true` + `dotnet test tests/AldurPrice.Core.Tests` (164/165 тестов; 1 Capture-тест с P/Invoke падает). Windows — полная сборка, 165/165 тестов, runtime PoE2.
+- **Целевая платформа:** .NET 9, WPF, `net9.0-windows10.0.19041.0` (для `AldurPrice.Ocr` + `AldurPrice` — WinRT API `Windows.Media.Ocr`), `net9.0-windows` для `AldurPrice.Capture` (Win32 P/Invoke), `net9.0` для Core/Data.
 - **Python:** 3.12 + `requests` + `lxml` (для `scripts/parse-poe2db-runeshapes.py`)
 - **Лицензия:** MIT

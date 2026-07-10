@@ -2,7 +2,9 @@
   <PropertyGroup>
     <!-- TFM задаётся в каждом .csproj индивидуально:
          - Core, Data, Core.Tests → net9.0 (cross-platform, no UI)
-         - Ocr, Capture, AldurPrice → net9.0-windows (WPF / Win32 / WinRT) -->
+         - Capture, Capture.Tests → net9.0-windows (Win32 P/Invoke, System.Drawing)
+         - Ocr, AldurPrice → net9.0-windows10.0.19041.0 (WinRT: Windows.Media.Ocr).
+           Main app обязан ≥ старшей TFM зависимости, иначе NU1201 при restore. -->
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
