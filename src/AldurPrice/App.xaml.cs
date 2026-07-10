@@ -91,11 +91,14 @@ public partial class App : Application
             services.AddSingleton<Ocr.ImagePreprocessor>();
             services.AddSingleton<Ocr.LeaguePanelDetector>();
             services.AddSingleton<Ocr.OcrPipeline>();
-            // M1.4: services.AddSingleton<Ocr.IOcrEngine>(sp => sp.GetRequiredService<Ocr.OcrEngineResolver>().Resolve());
+            // M1.10: services.AddSingleton<Ocr.IOcrEngine>(sp => sp.GetRequiredService<Ocr.OcrEngineResolver>().Resolve());  // для OcrLeagueWindowReader
 
-            // === Capture ===
+            // === Capture (M1.4) ===
+            services.AddSingleton<Capture.IProcessEnumerator, Capture.DefaultProcessEnumerator>();
+            services.AddSingleton<Capture.Poe2WindowLocator>();
             services.AddSingleton<Capture.PrintWindowCapture>();
-            // M1.4: services.AddSingleton<Capture.ICaptureStrategy>(sp => sp.GetRequiredService<Capture.PrintWindowCapture>());
+            services.AddSingleton<Capture.ICaptureStrategy>(sp =>
+                sp.GetRequiredService<Capture.PrintWindowCapture>());
 
             // === UI ===
             services.AddSingleton<MainWindow>();

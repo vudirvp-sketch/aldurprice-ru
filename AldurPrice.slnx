@@ -9,4 +9,5 @@
   <Project Id="AldurPrice.Capture"   Path="src/AldurPrice.Capture/AldurPrice.Capture.csproj" />
   <Project Id="AldurPrice"           Path="src/AldurPrice/AldurPrice.csproj" />
   <Project Id="AldurPrice.Core.Tests" Path="tests/AldurPrice.Core.Tests/AldurPrice.Core.Tests.csproj" />
+  <Project Id="AldurPrice.Capture.Tests" Path="tests/AldurPrice.Capture.Tests/AldurPrice.Capture.Tests.csproj" />
 </Solution>

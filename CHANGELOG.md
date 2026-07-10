@@ -5,6 +5,46 @@
 
 ## [Unreleased]
 
+### Added — M1.4: Захват экрана (частично)
+
+- **`src/AldurPrice.Capture/PrintWindowCapture.cs`** — реальная имплементация (был M0 stub):
+  - P/Invoke `user32!PrintWindow` с флагом `PW_RENDERFULLCONTENT` (0x00000002) — корректно рендерит DirectComposition/DirectX-окна (PoE2 renderer, WPF), без этого флага был бы чёрный прямоугольник.
+  - Flow: `Poe2WindowLocator.TryLocate` → `GetClientRect` (валидация размеров) → `CreateCompatibleDC` + `CreateCompatibleBitmap` → `PrintWindow` → `Image.FromHbitmap` → `Bitmap.Clone` (crop) → PNG-encode.
+  - Валидация: регион должен полностью помещаться в клиентскую область (иначе `ArgumentOutOfRangeException` с понятным сообщением).
+  - Все GDI-ресурсы (DC, bitmap, managed Bitmap) освобождаются в `finally` — парные create/delete, без утечек handle'ов.
+  - Синхронный Win32-вызов (PrintWindow ~5-15 мс на 1080p) — приемлемо без `Task.Run`.
+- **`src/AldurPrice.Capture/Poe2WindowLocator.cs`** (NEW) — поиск окна PoE2:
+  - Перебор `Process.GetProcesses()` по списку имён: `PathOfExileSteam`, `PathOfExile_x64`, `PathOfExile`, `PathOfExileSteam_x64` (Steam-first приоритет). См. KI-013 — список не верифицирован на реальной установке.
+  - Кэш найденного HWND с TTL 5 с + перепроверка `IsWindow` перед возвратом — экономит `Process.GetProcesses` (~20-50 мс) на OCR-цикле (100 мс интервал).
+  - `IProcessEnumerator` interface + `DefaultProcessEnumerator` (production) + `ProcessSnapshot` record — для unit-тестов без реального PoE2.
+  - `Poe2WindowHandle` record — HWND + ProcessId + ProcessName + Title.
+  - Thread-safe: кэш под `lock`, scan вне lock (не блокирует другие потоки).
+  - `InvalidateCache()` для будущего `Poe2WindowMonitor` (M3.3) — сброс при EVENT_OBJECT_DESTROY.
+- **`src/AldurPrice.Capture/Win32/NativeMethods.cs`** (NEW) — централизованные P/Invoke:
+  - `user32`: `PrintWindow`, `GetClientRect`, `GetWindowRect`, `IsWindow`, `GetWindowDC`, `ReleaseDC`.
+  - `gdi32`: `CreateCompatibleDC`, `CreateCompatibleBitmap`, `SelectObject`, `DeleteObject`, `DeleteDC`, `BitBlt`.
+  - Константы: `PW_RENDERFULLCONTENT`, `PW_CLIENTONLY`, `SRCCOPY`.
+  - `RECT` struct с `Width`/`Height` computed properties.
+- **`tests/AldurPrice.Capture.Tests/`** (NEW) — net9.0-windows тест-проект:
+  - `AldurPrice.Capture.Tests.csproj` — xUnit, ссылка на `AldurPrice.Capture`.
+  - `Poe2WindowLocatorTests.cs` — 15 тестов: matching (Steam/standalone), not-found, process-without-window, multiple-matches (приоритет Steam), кэш (invalidate + invalid-HWND rescan), constructor validation, custom process names, enumerator-throws.
+  - `PrintWindowCaptureTests.cs` — 10 тест-кейсов (6 Fact + 4 InlineData в Theory): валидация аргументов (null/invalid region), name, constructor null-checks, pre-cancelled token, error-path «окно не найдено» через empty locator. Реальный capture отложен в M1.10 (нужен Windows + PoE2).
+  - Использует `FakeProcessEnumerator` + `NullLogger<T>` — не требует реального PoE2.
+
+### Changed — M1.4
+
+- **`src/AldurPrice.Capture/ICaptureStrategy.cs`** — docstring обновлён: `CaptureRegion` теперь явно window-client-relative (координаты относительно клиентской области окна PoE2, не экранные). Добавлен `<exception>` tag для `InvalidOperationException`. См. AD-005 в STATUS.md.
+- **`src/AldurPrice.Capture/AldurPrice.Capture.csproj`** — добавлен `<PackageReference Include="System.Drawing.Common" />` (для `Bitmap`/PNG-encoding в `PrintWindowCapture`, аналогично `AldurPrice.Ocr`).
+- **`src/AldurPrice/App.xaml.cs`** — DI-регистрация capture-сервисов: `IProcessEnumerator` → `DefaultProcessEnumerator`, `Poe2WindowLocator`, `PrintWindowCapture`, `ICaptureStrategy` → `PrintWindowCapture`. Раскомментирована M1.4 TODO.
+- **`AldurPrice.slnx`** — добавлен `AldurPrice.Capture.Tests` проект.
+- **`STATUS.md`** — M1.4 отмечен как ✅ (частично). Добавлен KI-013 (`WgcCapture` stub, имена процессов не верифицированы) и AD-005 (capture-компоненты в `AldurPrice.Capture/`, `CaptureRegion` — window-client-relative). «Что в работе» обновлено: Windows-верификация M1.4 вместо M1.3.
+- **`docs/02-ARCHITECTURE.md`** — §1 обновлён: capture-компоненты показаны в `src/AldurPrice.Capture/` (с `Win32/NativeMethods.cs`). §2.1 DI обновлён реальными регистрациями.
+- **`docs/05-ROADMAP.md`** — M1.4 чекбоксы отмечены: `ICaptureStrategy`, `PrintWindowCapture`, `Poe2WindowLocator`, тесты — ✅. `WgcCapture` — отложен (KI-013).
+
+### Known Issues (M1.4)
+
+- `KI-013`: `WgcCapture` (Windows.Graphics.Capture fallback для Lossless Scaling) НЕ реализован. Имена процессов PoE2 не верифицированы на реальной установке. Workaround: для LS-пользователей — переключить LS в windowed mode, либо дождаться M1.4b / M2.
+
 ### Added — Roadmap: M2.7 Rune Value Highlight (опциональная фича, пост-MVP)
 
 - **`docs/05-ROADMAP.md`** — добавлен раздел [M2.7 — Rune Value Highlight](docs/05-ROADMAP.md#m27--rune-value-highlight-опциональная-фича--️-пост-mvp-не-блокирует-v030-beta):

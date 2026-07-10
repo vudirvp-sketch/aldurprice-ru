@@ -12,7 +12,7 @@
 | M1.1 — Парсер poe2db.tw | ✅ | Переписан под реальную HTML-структуру poe2db. `ocr/runeshape-combinations-ru.json`: 153 записи (alloy 13, ancient 13, basic 82, lineage 21, master 1, special 3, ward 20). |
 | M1.2 — Core: ItemNameParser, ItemNameTranslator, RussianStemmer, RuneshapeCombinationTranslator | ✅ (частично) | Реальные имплементации + 106 тестов (0 fail). Без TranslationCache/rus.ndjson — это M1.5. Полный Snowball — KI-007. |
 | M1.3 — OCR-движки и пайплайн | ✅ (частично) | Реальные имплементации: `WindowsOcrEngine`, `TesseractEngine`, `ImagePreprocessor`, `LeaguePanelDetector`, `RussianOcrPostProcessor`, `OcrPipeline`. `OcrEngineResolver` без изменений. Не сделано: `OcrLeagueWindowReader`, `ResolutionProfiles`, MSBuild target `EnsureTessData`, тесты на реальные скриншоты. 23 новых теста для `RussianOcrPostProcessor`. |
-| M1.4 — Захват экрана | ⏳ | `PrintWindowCapture`, `Poe2WindowLocator`. |
+| M1.4 — Захват экрана | ✅ (частично) | `PrintWindowCapture` (real), `Poe2WindowLocator` (real), `Win32/NativeMethods.cs` (P/Invoke). `WgcCapture` отложен (KI-013). 25 новых тест-кейсов в `AldurPrice.Capture.Tests` (15 locator + 10 capture). |
 | M1.5 — Источники цен + TranslationCache/rus.ndjson | ⏳ | `Poe2ScoutClient`, `PoeNinjaClient`, загрузка `rus.ndjson` из Exiled Exchange 2 (4319 предметов). Без этого `ItemNameTranslator` покрывает только рунные комбинации. |
 | M1.6 — In-memory кэш цен | ⏳ | `ConcurrentDictionary`, TTL 15 мин, `LeaguePricingWorker`. |
 | M1.7 — Оверлей (минимальный) | ⏳ | click-through topmost WPF window. |
@@ -21,16 +21,16 @@
 | M1.10 — Тесты на реальных скриншотах | ⏳ | 10+ PNG-фикстур с RU-клиента. |
 
 **Сборка:** `dotnet build AldurPrice.slnx -p:EnableWindowsTargeting=true` — 0 errors (warnings только CS1591 на недокументированных public API).
-**Тесты:** `dotnet test tests/AldurPrice.Core.Tests` — 129 passed (106 + 23 новых), 0 failed.
+**Тесты:** `dotnet test` — 154 passed (129 Core.Tests + 25 новых Capture.Tests), 0 failed. На Linux доступен только `Core.Tests`; `Capture.Tests` требует `net9.0-windows`.
 
 ## Что в работе
 
 - **M0 релиз (pending)**: запустить `dotnet run --project src/AldurPrice` на Windows 10/11, проверить тёмное окно с «Hello AldurPrice», поставить тег `v0.1.0-alpha`.
-- **M1.3 Windows-верификация (next)**: 
-  1. На Windows: `dotnet build AldurPrice.slnx -p:EnableWindowsTargeting=true` — проверить, что компилируется без ошибок (особенно `WindowsOcrEngine` с WinRT API).
-  2. `dotnet test tests/AldurPrice.Core.Tests` — 129 тестов должны быть green.
-  3. Скачать `eng.traineddata` + `rus.traineddata` в `ocr/tesseract/` (см. KI-009) — без них Tesseract fallback недоступен.
-  4. (Опционально) Написать минимальный smoke-test на `OcrPipeline.ProcessAsync` с реальным PNG-фикстурой — это фактически M1.10.
+- **M1.4 Windows-верификация (next)**:
+  1. На Windows: `dotnet build AldurPrice.slnx` — проверить, что компилируется без ошибок (особенно `PrintWindowCapture` с P/Invoke и `System.Drawing.Common`).
+  2. `dotnet test` — все 154 тест-кейса (Core.Tests + Capture.Tests) должны быть green.
+  3. Запустить PoE2, проверить через debug-лог, что `Poe2WindowLocator.TryLocate()` находит окно (имя процесса может отличаться — см. KI-013).
+  4. (Опционально) Smoke-test: вызвать `PrintWindowCapture.CaptureAsync` с регионом `{0,0,800,600}` и сохранить PNG — проверить, что не чёрный прямоугольник.
 
 ## Что дальше (M1 — MVP)
 
@@ -39,7 +39,7 @@
 1. ~~M1.1 — Парсер poe2db.tw~~ ✅
 2. ~~M1.2 — Core translators~~ ✅ (частично; полный Snowball — KI-007, TranslationCache + rus.ndjson — M1.5)
 3. ~~M1.3 — OCR-движки~~ ✅ (частично; оставшиеся компоненты — M1.10 / M2)
-4. M1.4 — Захват экрана: `PrintWindowCapture` через P/Invoke `user32!PrintWindow`, `Poe2WindowLocator`.
+4. ~~M1.4 — Захват экрана~~ ✅ (частично; `WgcCapture` fallback — KI-013, M1.4b / M2)
 5. M1.5 — Источники цен + переводы базовых предметов: `Poe2ScoutClient`, `PoeNinjaClient` через `IHttpClientFactory`, WireMock.Net-тесты. Загрузка `rus.ndjson` из Exiled Exchange 2 (4319 предметов), `TranslationCache`.
 6. M1.6 — In-memory кэш цен: `ConcurrentDictionary`-based, TTL 15 мин, `LeaguePricingWorker` (`BackgroundService`).
 7. M1.7 — Оверлей (минимальный): click-through topmost WPF window через `WS_EX_TRANSPARENT`, `PriceRowLayout`, `PriceColorCalculator`.
@@ -152,6 +152,18 @@ Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata_best/raw/main/
 
 **План:** Добавить явную проверку build number через `Environment.OSVersion.Version` (build ≥ 17763 = 1809) в `CheckAvailability()`. В M1.10 / M2.
 
+### KI-013: `WgcCapture` не реализован (stub); имена процессов PoE2 не верифицированы
+
+**Симптом:** M1.4 частично выполнен: `PrintWindowCapture` (primary) и `Poe2WindowLocator` реализованы, но `WgcCapture` (fallback для Lossless Scaling) НЕ создан. Кроме того, список `Poe2WindowLocator.DefaultProcessNames` основан на публичной информации о PoE2 early access и не проверен на реальной установке.
+
+**Причина:** `WgcCapture` требует WinRT interop (`GraphicsCaptureItem.CreateFromInterop`, `Direct3D11CaptureFramePool`, `GraphicsCaptureSession`) + DirectX interop (`IDirect3DDevice`). Это существенный объём кода, который невозможно верифицировать без Windows-машины с PoE2 + Lossless Scaling. Риск сломать сборку или получить runtime-crash высок. Принцип «лучше недоделать, чем сломать» — `PrintWindowCapture` покрывает основной use-case (оконный режим), WGC нужен только для LS-пользователей (миноритарный сценарий).
+
+**Список имён процессов** (`PathOfExileSteam`, `PathOfExile_x64`, `PathOfExile`, `PathOfExileSteam_x64`) основан на ранних отчетах early access. Если на реальной Windows-машине `TryLocate()` возвращает `null` при запущенном PoE2 — нужно проверить фактическое имя через Task Manager → Details → Name колонка, и добавить в `DefaultProcessNames` (или переопределить через DI).
+
+**Workaround для LS-пользователей:** Lossless Scaling растягивает окно PoE2. `PrintWindow` должен работать (он рендерит окно, а не экран), но если LS использует exclusive fullscreen — capture будет чёрным. В этом случае нужно либо переключить LS в windowed mode, либо дождаться `WgcCapture`.
+
+**План:** Реализовать `WgcCapture` в M1.4b (отдельная итерация после Windows-верификации M1.4 primary path) или в M2. Верифицировать имена процессов при первой Windows-проверке. См. `docs/05-ROADMAP.md` → M1.4.
+
 ## Architecture deviations
 
 В этом разделе фиксируются отличия реализации от архитектурного документа `docs/02-ARCHITECTURE.md`. Любое отличие должно быть либо согласовано с архитектурой (тогда документ обновляется), либо перечислено здесь с обоснованием.
@@ -194,6 +206,24 @@ Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata_best/raw/main/
 **Обоснование:** Это чистая текстовая обработка без Windows-зависимостей. Помещение в Core позволяет тестировать из `AldurPrice.Core.Tests` (net9.0, кроссплатформенный). Если бы лежал в `AldurPrice.Ocr/` (net9.0-windows10.0.19041.0), потребовался бы отдельный `AldurPrice.Ocr.Tests` проект на net9.0-windows — лишняя сложность для M1.3. Логически соседствует с `RussianStemmer` и `ItemNameParser`.
 
 **План:** Документ `docs/02-ARCHITECTURE.md` обновлён (см. §1) — `RussianOcrPostProcessor` перенесён в `AldurPrice.Core/Translation/`. Когда появится `OcrTextPostProcessor` (language-agnostic часть) — он тоже переедет в Core.
+
+### AD-005: Capture-компоненты в `AldurPrice.Capture/` (не `AldurPrice/Capture/`); `CaptureRegion` — window-client-relative
+
+**Документ говорит:** `docs/02-ARCHITECTURE.md` §1 рисует capture-компоненты (`PrintWindowCapture`, `WgcCapture`, `FrameDiffer`, `Poe2WindowMonitor`, `Poe2WindowLocator`) в `AldurPrice/Capture/` (подпапка основного WPF-проекта). Также `ICaptureStrategy.CaptureAsync` docstring говорил про «экранные координаты».
+
+**Реализация:** Все capture-компоненты живут в `src/AldurPrice.Capture/` (отдельный проект, `net9.0-windows`):
+- `ICaptureStrategy.cs`, `CaptureRegion` — интерфейс + DTO
+- `PrintWindowCapture.cs` — Win32 PrintWindow (primary)
+- `Poe2WindowLocator.cs` — поиск окна PoE2 (+ `IProcessEnumerator`, `DefaultProcessEnumerator`, `ProcessSnapshot`, `Poe2WindowHandle`)
+- `Win32/NativeMethods.cs` — P/Invoke user32/gdi32 + `RECT` struct
+- (Будет: `WgcCapture.cs` — M1.4b / M2, см. KI-013)
+- (Будет: `FrameDiffer.cs` — M3.1, `Poe2WindowMonitor.cs` — M3.3)
+
+`CaptureRegion` переинтерпретирован как **window-client-relative** (координаты относительно левого-верхнего угла клиентской области окна PoE2), НЕ экранные. Docstring обновлён в `ICaptureStrategy.cs`.
+
+**Обоснование (project location):** Аналогично AD-003 (OCR). Вынос capture в отдельный проект позволяет: (1) тестировать из `AldurPrice.Capture.Tests` без загрузки WPF assembly; (2) использовать `AldurPrice.Capture` из будущего `AldurPrice.Integration` тест-проекта без ссылки на весь WPF app; (3) чётче разделять слои — `Capture` зависит только от `Core` + Win32, не от `AldurPrice/Configuration`.
+
+**Обоснование (region coords):** Screen-absolute координаты бессмысленны для оверлея: игрок двигает окно PoE2, регион должен двигаться вместе с ним. `WindowOptions.CustomOffsetX/Y` (настраиваемый пользователем регион) — по смыслу offset от угла окна, не экрана. PrintWindow рендерит всё окно, затем crop делается в client-relative координатах — это естественный flow. Старый stub docstring был неточен; реальных клиентов у stub'а не было (M0 не вызывал `CaptureAsync`).
 
 ## Environment
 

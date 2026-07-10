@@ -10,6 +10,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <!-- System.Drawing.Common: Bitmap/PNG-encoding для PrintWindowCapture.
+         На net9.0-windows работает нативно (GDI+). Аналогично AldurPrice.Ocr. -->
+    <PackageReference Include="System.Drawing.Common" />
   </ItemGroup>
 
   <ItemGroup>

@@ -117,12 +117,12 @@
 - [x] Оценка: 20 часов (потрачено ~18)
 
 #### M1.4 — Захват экрана
-- [ ] `Capture/ICaptureStrategy.cs` — интерфейс
-- [ ] `Capture/PrintWindowCapture.cs` — Win32 PrintWindow (primary)
-- [ ] `Capture/WgcCapture.cs` — Windows.Graphics.Capture (fallback для Lossless Scaling)
-- [ ] `Capture/Poe2WindowLocator.cs` — поиск окна PoE2 по `Process.GetProcessesByName`
-- [ ] Тесты: `PrintWindowCaptureTests` (mock), `Poe2WindowLocatorTests`
-- [ ] Оценка: 8 часов
+- [x] `Capture/ICaptureStrategy.cs` — интерфейс (был с M0; docstring обновлена в M1.4 — `CaptureRegion` теперь window-client-relative, см. AD-005)
+- [x] `Capture/PrintWindowCapture.cs` — Win32 PrintWindow (primary) — P/Invoke `PW_RENDERFULLCONTENT`, crop, PNG-encode
+- [ ] `Capture/WgcCapture.cs` — Windows.Graphics.Capture (fallback для Lossless Scaling) — отложен в M1.4b / M2 (KI-013)
+- [x] `Capture/Poe2WindowLocator.cs` — поиск окна PoE2 по `Process.GetProcesses` + кэш (TTL 5 с) + `IProcessEnumerator` для тестопригодности
+- [x] Тесты: `Poe2WindowLocatorTests` (15 тестов с fake enumerator), `PrintWindowCaptureTests` (10 тест-кейсов — валидация + error-path)
+- [x] Оценка: 8 часов (потрачено ~6; WgcCapture отложен)
 
 #### M1.5 — Источники цен
 - [ ] `Pricing/Poe2ScoutClient.cs` — HTTP к `api.poe2scout.com/poe2`

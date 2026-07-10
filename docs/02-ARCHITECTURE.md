@@ -121,14 +121,20 @@ AldurPrice/
 │   │   ├── DebugOverlayService.cs            # Визуализация для отладки (M3.6)
 │   │   └── OcrInspectorWindow.xaml(.cs)      # Окно "OCR Pipeline Inspector" (M3.6)
 │   │
-│   └── AldurPrice.Capture/                   # Захват экрана
-│       ├── ICaptureStrategy.cs
-│       ├── PrintWindowCapture.cs             # Win32 PrintWindow
-│       ├── WgcCapture.cs                     # WinRT WGC
-│       └── CaptureOptions.cs
+│   └── AldurPrice.Capture/                   # Захват экрана (net9.0-windows)
+│       ├── ICaptureStrategy.cs               # Интерфейс + CaptureRegion record
+│       ├── PrintWindowCapture.cs             # Win32 PrintWindow (primary) — ✅ M1.4
+│       ├── Poe2WindowLocator.cs              # Поиск окна PoE2 (Process.GetProcesses) — ✅ M1.4
+│       ├── Win32/
+│       │   └── NativeMethods.cs              # P/Invoke user32/gdi32 + RECT — ✅ M1.4
+│       ├── WgcCapture.cs                     # WinRT WGC (fallback для LS) — M1.4b / M2 (KI-013)
+│       ├── FrameDiffer.cs                    # pHash skip unchanged — M3.1
+│       ├── Poe2WindowMonitor.cs              # Foreground detection — M3.3
+│       └── CaptureOptions.cs                 # Настройки захвата (M1.9 / по мере необходимости)
 │
 ├── tests/
 │   ├── AldurPrice.Core.Tests/                # Unit-тесты логики (net9.0, кроссплатформенный)
+│   ├── AldurPrice.Capture.Tests/             # Тесты захвата (net9.0-windows) — ✅ M1.4
 │   ├── AldurPrice.Ocr.Tests/                 # Тесты OCR (net9.0-windows, mock bitmaps) — M1.10
 │   ├── AldurPrice.Data.Tests/                # Тесты SQLite (in-memory)
 │   ├── AldurPrice.UI.Tests/                  # UI-тесты (FlaUI)
@@ -209,11 +215,14 @@ services.AddSingleton<Ocr.OcrEngineResolver>();
 services.AddSingleton<Ocr.ImagePreprocessor>();
 services.AddSingleton<Ocr.LeaguePanelDetector>();
 services.AddSingleton<Ocr.OcrPipeline>();
-// M1.4: services.AddSingleton<Ocr.IOcrEngine>(sp => sp.GetRequiredService<Ocr.OcrEngineResolver>().Resolve());
+// M1.10: services.AddSingleton<Ocr.IOcrEngine>(sp => sp.GetRequiredService<Ocr.OcrEngineResolver>().Resolve());  // для OcrLeagueWindowReader
 
 // Capture (M1.4)
+services.AddSingleton<Capture.IProcessEnumerator, Capture.DefaultProcessEnumerator>();
+services.AddSingleton<Capture.Poe2WindowLocator>();
 services.AddSingleton<Capture.PrintWindowCapture>();
-// M1.4: services.AddSingleton<Capture.ICaptureStrategy>(sp => sp.GetRequiredService<Capture.PrintWindowCapture>());
+services.AddSingleton<Capture.ICaptureStrategy>(sp =>
+    sp.GetRequiredService<Capture.PrintWindowCapture>());
 
 // UI (WPF)
 services.AddSingleton<MainWindow>();

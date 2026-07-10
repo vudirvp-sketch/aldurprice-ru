@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- net9.0-windows: тестируем AldurPrice.Capture (P/Invoke user32, System.Drawing).
+         На Linux не запускается, но CI работает на windows-latest. -->
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <RootNamespace>AldurPrice.Capture.Tests</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <UseWPF>false</UseWPF>
+    <UseWindowsForms>false</UseWindowsForms>
+    <Description>Unit-тесты для AldurPrice.Capture (Poe2WindowLocator — с fake enumerator; PrintWindowCapture — валидация аргументов).</Description>
+    <!-- xUnit-конвенция: Method_Scenario_Expected — подчёркивания в именах тестов OK. -->
+    <NoWarn>$(NoWarn);CA1707</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AldurPrice.Capture\AldurPrice.Capture.csproj" />
+  </ItemGroup>
+
+</Project>
