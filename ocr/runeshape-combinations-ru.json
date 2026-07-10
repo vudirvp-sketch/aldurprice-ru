@@ -1,0 +1,926 @@
+{
+  "version": 1,
+  "source": "https://poe2db.tw/ru/Runeshape_Combinations",
+  "fetched_at": "2026-07-10T02:39:52.086221+00:00",
+  "count": 153,
+  "combinations": [
+    {
+      "en": "Adaptive Alloy",
+      "ru": "Адаптивный сплав",
+      "href": "Adaptive_Alloy",
+      "tier": "alloy"
+    },
+    {
+      "en": "Celestial Alloy",
+      "ru": "Небесный сплав",
+      "href": "Celestial_Alloy",
+      "tier": "alloy"
+    },
+    {
+      "en": "Cyclonic Alloy",
+      "ru": "Вихревой сплав",
+      "href": "Cyclonic_Alloy",
+      "tier": "alloy"
+    },
+    {
+      "en": "Expansive Alloy",
+      "ru": "Экспансивный сплав",
+      "href": "Expansive_Alloy",
+      "tier": "alloy"
+    },
+    {
+      "en": "Mystic Alloy",
+      "ru": "Мистический сплав",
+      "href": "Mystic_Alloy",
+      "tier": "alloy"
+    },
+    {
+      "en": "Prismatic Alloy",
+      "ru": "Радужный сплав",
+      "href": "Prismatic_Alloy",
+      "tier": "alloy"
+    },
+    {
+      "en": "Protective Alloy",
+      "ru": "Защитный сплав",
+      "href": "Protective_Alloy",
+      "tier": "alloy"
+    },
+    {
+      "en": "Runic Alloy",
+      "ru": "Рунный сплав",
+      "href": "Runic_Alloy",
+      "tier": "alloy"
+    },
+    {
+      "en": "Sovereign Alloy",
+      "ru": "Державный сплав",
+      "href": "Sovereign_Alloy",
+      "tier": "alloy"
+    },
+    {
+      "en": "Swift Alloy",
+      "ru": "Лёгкий сплав",
+      "href": "Swift_Alloy",
+      "tier": "alloy"
+    },
+    {
+      "en": "The Runebinder's Alloy",
+      "ru": "Сплав Повелителя рун",
+      "href": "The_Runebinders_Alloy",
+      "tier": "alloy"
+    },
+    {
+      "en": "The Runefather's Alloy",
+      "ru": "Сплав Рунного отца",
+      "href": "The_Runefathers_Alloy",
+      "tier": "alloy"
+    },
+    {
+      "en": "Transcendent Alloy",
+      "ru": "Возвышенный сплав",
+      "href": "Transcendent_Alloy",
+      "tier": "alloy"
+    },
+    {
+      "en": "Ancient Rune of Animosity",
+      "ru": "Древняя руна вражды",
+      "href": "Ancient_Rune_of_Animosity",
+      "tier": "ancient"
+    },
+    {
+      "en": "Ancient Rune of Control",
+      "ru": "Древняя руна правления",
+      "href": "Ancient_Rune_of_Control",
+      "tier": "ancient"
+    },
+    {
+      "en": "Ancient Rune of Decay",
+      "ru": "Древняя руна тлена",
+      "href": "Ancient_Rune_of_Decay",
+      "tier": "ancient"
+    },
+    {
+      "en": "Ancient Rune of Detonation",
+      "ru": "Древняя руна подрыва",
+      "href": "Ancient_Rune_of_Detonation",
+      "tier": "ancient"
+    },
+    {
+      "en": "Ancient Rune of Discovery",
+      "ru": "Древняя руна находки",
+      "href": "Ancient_Rune_of_Discovery",
+      "tier": "ancient"
+    },
+    {
+      "en": "Ancient Rune of Dueling",
+      "ru": "Древняя руна поединка",
+      "href": "Ancient_Rune_of_Dueling",
+      "tier": "ancient"
+    },
+    {
+      "en": "Ancient Rune of Prowess",
+      "ru": "Древняя руна мастерства",
+      "href": "Ancient_Rune_of_Prowess",
+      "tier": "ancient"
+    },
+    {
+      "en": "Ancient Rune of Retaliation",
+      "ru": "Древняя руна расплаты",
+      "href": "Ancient_Rune_of_Retaliation",
+      "tier": "ancient"
+    },
+    {
+      "en": "Ancient Rune of Shattering",
+      "ru": "Древняя руна разбивания",
+      "href": "Ancient_Rune_of_Shattering",
+      "tier": "ancient"
+    },
+    {
+      "en": "Ancient Rune of Splinters",
+      "ru": "Древняя руна осколков",
+      "href": "Ancient_Rune_of_Splinters",
+      "tier": "ancient"
+    },
+    {
+      "en": "Ancient Rune of the Horde",
+      "ru": "Древняя руна орды",
+      "href": "Ancient_Rune_of_the_Horde",
+      "tier": "ancient"
+    },
+    {
+      "en": "Ancient Rune of the Titan",
+      "ru": "Древняя руна Титана",
+      "href": "Ancient_Rune_of_the_Titan",
+      "tier": "ancient"
+    },
+    {
+      "en": "Ancient Rune of Witchcraft",
+      "ru": "Древняя руна ведьмовства",
+      "href": "Ancient_Rune_of_Witchcraft",
+      "tier": "ancient"
+    },
+    {
+      "en": "Adaptive Rune",
+      "ru": "Руна адаптации",
+      "href": "Adaptive_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Adept Rune",
+      "ru": "Руна искусности",
+      "href": "Adept_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Arcane Rune",
+      "ru": "Руна колдовства",
+      "href": "Arcane_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Bait Rune",
+      "ru": "Bait Rune",
+      "href": "Bait_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Bloodletting Rune",
+      "ru": "Руна кровопускания",
+      "href": "Bloodletting_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Body Rune",
+      "ru": "Руна тела",
+      "href": "Body_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Bond Rune",
+      "ru": "Руна связи",
+      "href": "Bond_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Celestial Rune",
+      "ru": "Руна небес",
+      "href": "Celestial_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Cold Rune",
+      "ru": "Руна холода",
+      "href": "Cold_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Cyclonic Rune",
+      "ru": "Руна вихря",
+      "href": "Cyclonic_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Death Rune",
+      "ru": "Руна смерти",
+      "href": "Death_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Desert Rune",
+      "ru": "Руна пустыни",
+      "href": "Desert_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Earth Rune",
+      "ru": "Руна земли",
+      "href": "Earth_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Electrocuting Rune",
+      "ru": "Руна электризации",
+      "href": "Electrocuting_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Fire Rune",
+      "ru": "Руна огня",
+      "href": "Fire_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Glacial Rune",
+      "ru": "Руна ледника",
+      "href": "Glacial_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Greater Adept Rune",
+      "ru": "Большая руна искусности",
+      "href": "Greater_Adept_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Greater Body Rune",
+      "ru": "Большая руна тела",
+      "href": "Greater_Body_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Greater Desert Rune",
+      "ru": "Большая руна пустыни",
+      "href": "Greater_Desert_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Greater Glacial Rune",
+      "ru": "Большая руна ледника",
+      "href": "Greater_Glacial_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Greater Inspiration Rune",
+      "ru": "Большая руна вдохновения",
+      "href": "Greater_Inspiration_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Greater Iron Rune",
+      "ru": "Большая руна железа",
+      "href": "Greater_Iron_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Greater Mind Rune",
+      "ru": "Большая руна разума",
+      "href": "Greater_Mind_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Greater Rebirth Rune",
+      "ru": "Большая руна перерождения",
+      "href": "Greater_Rebirth_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Greater Resolve Rune",
+      "ru": "Большая руна решительности",
+      "href": "Greater_Resolve_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Greater Robust Rune",
+      "ru": "Большая руна мощи",
+      "href": "Greater_Robust_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Greater Stone Rune",
+      "ru": "Большая руна камня",
+      "href": "Greater_Stone_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Greater Storm Rune",
+      "ru": "Большая руна шторма",
+      "href": "Greater_Storm_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Greater Vision Rune",
+      "ru": "Большая руна видения",
+      "href": "Greater_Vision_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Inspiration Rune",
+      "ru": "Руна вдохновения",
+      "href": "Inspiration_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Iron Rune",
+      "ru": "Руна железа",
+      "href": "Iron_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Lesser Adept Rune",
+      "ru": "Малая руна искусности",
+      "href": "Lesser_Adept_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Lesser Body Rune",
+      "ru": "Малая руна тела",
+      "href": "Lesser_Body_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Lesser Desert Rune",
+      "ru": "Малая руна пустыни",
+      "href": "Lesser_Desert_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Lesser Glacial Rune",
+      "ru": "Малая руна ледника",
+      "href": "Lesser_Glacial_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Lesser Inspiration Rune",
+      "ru": "Малая руна вдохновения",
+      "href": "Lesser_Inspiration_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Lesser Iron Rune",
+      "ru": "Малая руна железа",
+      "href": "Lesser_Iron_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Lesser Mind Rune",
+      "ru": "Малая руна разума",
+      "href": "Lesser_Mind_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Lesser Rebirth Rune",
+      "ru": "Малая руна перерождения",
+      "href": "Lesser_Rebirth_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Lesser Resolve Rune",
+      "ru": "Малая руна решительности",
+      "href": "Lesser_Resolve_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Lesser Robust Rune",
+      "ru": "Малая руна мощи",
+      "href": "Lesser_Robust_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Lesser Stone Rune",
+      "ru": "Малая руна камня",
+      "href": "Lesser_Stone_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Lesser Storm Rune",
+      "ru": "Малая руна шторма",
+      "href": "Lesser_Storm_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Lesser Vision Rune",
+      "ru": "Малая руна видения",
+      "href": "Lesser_Vision_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Life Rune",
+      "ru": "Руна жизни",
+      "href": "Life_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Lightning Rune",
+      "ru": "Руна молнии",
+      "href": "Lightning_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Mind Rune",
+      "ru": "Руна разума",
+      "href": "Mind_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Momentum Rune",
+      "ru": "Руна импульса",
+      "href": "Momentum_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Moon Rune",
+      "ru": "Руна луны",
+      "href": "Moon_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Oath Rune",
+      "ru": "Руна клятвы",
+      "href": "Oath_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Opulent Rune",
+      "ru": "Руна богатства",
+      "href": "Opulent_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Power Rune",
+      "ru": "Руна силы",
+      "href": "Power_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Prismatic Rune",
+      "ru": "Руна радуги",
+      "href": "Prismatic_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Protective Rune",
+      "ru": "Руна защиты",
+      "href": "Protective_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Rage Rune",
+      "ru": "Руна ярости",
+      "href": "Rage_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Rebirth Rune",
+      "ru": "Руна перерождения",
+      "href": "Rebirth_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Resolve Rune",
+      "ru": "Руна решительности",
+      "href": "Resolve_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Robust Rune",
+      "ru": "Руна мощи",
+      "href": "Robust_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Rune of Accumulation",
+      "ru": "Руна накопления",
+      "href": "Rune_of_Accumulation",
+      "tier": "basic"
+    },
+    {
+      "en": "Rune of Acrobatics",
+      "ru": "Руна акробатики",
+      "href": "Rune_of_Acrobatics",
+      "tier": "basic"
+    },
+    {
+      "en": "Rune of Confrontation",
+      "ru": "Руна противоборства",
+      "href": "Rune_of_Confrontation",
+      "tier": "basic"
+    },
+    {
+      "en": "Rune of Consistency",
+      "ru": "Руна постоянства",
+      "href": "Rune_of_Consistency",
+      "tier": "basic"
+    },
+    {
+      "en": "Rune of Culmination",
+      "ru": "Руна кульминации",
+      "href": "Rune_of_Culmination",
+      "tier": "basic"
+    },
+    {
+      "en": "Rune of Foundations",
+      "ru": "Руна основ",
+      "href": "Rune_of_Foundations",
+      "tier": "basic"
+    },
+    {
+      "en": "Rune of Reach",
+      "ru": "Руна охвата",
+      "href": "Rune_of_Reach",
+      "tier": "basic"
+    },
+    {
+      "en": "Rune of Renown",
+      "ru": "Руна славы",
+      "href": "Rune_of_Renown",
+      "tier": "basic"
+    },
+    {
+      "en": "Rune of the Blossom",
+      "ru": "Руна цветения",
+      "href": "Rune_of_the_Blossom",
+      "tier": "basic"
+    },
+    {
+      "en": "Rune of the Hunt",
+      "ru": "Руна охоты",
+      "href": "Rune_of_the_Hunt",
+      "tier": "basic"
+    },
+    {
+      "en": "Rune of the Prism",
+      "ru": "Руна призмы",
+      "href": "Rune_of_the_Prism",
+      "tier": "basic"
+    },
+    {
+      "en": "Rune of Vital Flame",
+      "ru": "Руна живого пламени",
+      "href": "Rune_of_Vital_Flame",
+      "tier": "basic"
+    },
+    {
+      "en": "Rune of Vitality",
+      "ru": "Руна живучести",
+      "href": "Rune_of_Vitality",
+      "tier": "basic"
+    },
+    {
+      "en": "Sky Rune",
+      "ru": "Руна неба",
+      "href": "Sky_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Soul Rune",
+      "ru": "Руна души",
+      "href": "Soul_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Stone Rune",
+      "ru": "Руна камня",
+      "href": "Stone_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Storm Rune",
+      "ru": "Руна шторма",
+      "href": "Storm_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Tempest Rune",
+      "ru": "Руна бури",
+      "href": "Tempest_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Tidal Rune",
+      "ru": "Руна прилива",
+      "href": "Tidal_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Time Rune",
+      "ru": "Руна времени",
+      "href": "Time_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Toxic Rune",
+      "ru": "Руна токсинов",
+      "href": "Toxic_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Vision Rune",
+      "ru": "Руна видения",
+      "href": "Vision_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Volcanic Rune",
+      "ru": "Руна вулкана",
+      "href": "Volcanic_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Wisdom Rune",
+      "ru": "Руна мудрости",
+      "href": "Wisdom_Rune",
+      "tier": "basic"
+    },
+    {
+      "en": "Countess Seske's Rune of Archery",
+      "ru": "Руна меткости графини Сеске",
+      "href": "Countess_Seskes_Rune_of_Archery",
+      "tier": "lineage"
+    },
+    {
+      "en": "Courtesan Mannan's Rune of Cruelty",
+      "ru": "Руна жестокости куртизанки Маннан",
+      "href": "Courtesan_Mannans_Rune_of_Cruelty",
+      "tier": "lineage"
+    },
+    {
+      "en": "Craiceann's Rune of Recovery",
+      "ru": "Руна восстановления Краценна",
+      "href": "Craiceanns_Rune_of_Recovery",
+      "tier": "lineage"
+    },
+    {
+      "en": "Craiceann's Rune of Warding",
+      "ru": "Руна барьера Краценна",
+      "href": "Craiceanns_Rune_of_Warding",
+      "tier": "lineage"
+    },
+    {
+      "en": "Farrul's Rune of Grace",
+      "ru": "Руна грации Фаррул",
+      "href": "Farruls_Rune_of_Grace",
+      "tier": "lineage"
+    },
+    {
+      "en": "Farrul's Rune of the Chase",
+      "ru": "Руна погони Фаррул",
+      "href": "Farruls_Rune_of_the_Chase",
+      "tier": "lineage"
+    },
+    {
+      "en": "Farrul's Rune of the Hunt",
+      "ru": "Руна охоты Фаррул",
+      "href": "Farruls_Rune_of_the_Hunt",
+      "tier": "lineage"
+    },
+    {
+      "en": "Fenumus' Rune of Agony",
+      "ru": "Руна агонии Фенумы",
+      "href": "Fenumus_Rune_of_Agony",
+      "tier": "lineage"
+    },
+    {
+      "en": "Fenumus' Rune of Draining",
+      "ru": "Руна высушивания Фенумы",
+      "href": "Fenumus_Rune_of_Draining",
+      "tier": "lineage"
+    },
+    {
+      "en": "Fenumus' Rune of Spinning",
+      "ru": "Руна плетения Фенумы",
+      "href": "Fenumus_Rune_of_Spinning",
+      "tier": "lineage"
+    },
+    {
+      "en": "Hedgewitch Assandra's Rune of Wisdom",
+      "ru": "Руна мудрости лесной ведьмы Ассандры",
+      "href": "Hedgewitch_Assandras_Rune_of_Wisdom",
+      "tier": "lineage"
+    },
+    {
+      "en": "Lady Hestra's Rune of Winter",
+      "ru": "Руна зимы леди Гестры",
+      "href": "Lady_Hestras_Rune_of_Winter",
+      "tier": "lineage"
+    },
+    {
+      "en": "Saqawal's Rune of Erosion",
+      "ru": "Руна эрозии Сакаваля",
+      "href": "Saqawals_Rune_of_Erosion",
+      "tier": "lineage"
+    },
+    {
+      "en": "Saqawal's Rune of Memory",
+      "ru": "Руна памяти Сакаваля",
+      "href": "Saqawals_Rune_of_Memory",
+      "tier": "lineage"
+    },
+    {
+      "en": "Saqawal's Rune of the Sky",
+      "ru": "Руна неба Сакаваля",
+      "href": "Saqawals_Rune_of_the_Sky",
+      "tier": "lineage"
+    },
+    {
+      "en": "Thane Girt's Rune of Wildness",
+      "ru": "Руна дикости тана Гирта",
+      "href": "Thane_Girts_Rune_of_Wildness",
+      "tier": "lineage"
+    },
+    {
+      "en": "Thane Grannell's Rune of Mastery",
+      "ru": "Руна мастерства тана Граннеля",
+      "href": "Thane_Grannells_Rune_of_Mastery",
+      "tier": "lineage"
+    },
+    {
+      "en": "Thane Leld's Rune of Spring",
+      "ru": "Руна весны тана Лельда",
+      "href": "Thane_Lelds_Rune_of_Spring",
+      "tier": "lineage"
+    },
+    {
+      "en": "Thane Myrk's Rune of Summer",
+      "ru": "Руна лета тана Мирка",
+      "href": "Thane_Myrks_Rune_of_Summer",
+      "tier": "lineage"
+    },
+    {
+      "en": "The Greatwolf's Rune of Claws",
+      "ru": "Руна когтей Великого волка",
+      "href": "The_Greatwolfs_Rune_of_Claws",
+      "tier": "lineage"
+    },
+    {
+      "en": "The Greatwolf's Rune of Willpower",
+      "ru": "Руна воли Великого волка",
+      "href": "The_Greatwolfs_Rune_of_Willpower",
+      "tier": "lineage"
+    },
+    {
+      "en": "Masterwork Rune",
+      "ru": "Мастерская руна",
+      "href": "Masterwork_Rune",
+      "tier": "master"
+    },
+    {
+      "en": "Charging Rune",
+      "ru": "Руна заряда",
+      "href": "Charging_Rune",
+      "tier": "special"
+    },
+    {
+      "en": "Greater Charging Rune",
+      "ru": "Большая руна заряда",
+      "href": "Greater_Charging_Rune",
+      "tier": "special"
+    },
+    {
+      "en": "Lesser Charging Rune",
+      "ru": "Малая руна заряда",
+      "href": "Lesser_Charging_Rune",
+      "tier": "special"
+    },
+    {
+      "en": "Greater Ward Rune",
+      "ru": "Большая руна барьера",
+      "href": "Greater_Ward_Rune",
+      "tier": "ward"
+    },
+    {
+      "en": "Lesser Ward Rune",
+      "ru": "Малая руна барьера",
+      "href": "Lesser_Ward_Rune",
+      "tier": "ward"
+    },
+    {
+      "en": "Ward Rune",
+      "ru": "Руна барьера",
+      "href": "Ward_Rune",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Annihilation",
+      "ru": "Барьерная руна уничтожения",
+      "href": "Warding_Rune_of_Annihilation",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Armature",
+      "ru": "Барьерная руна панциря",
+      "href": "Warding_Rune_of_Armature",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Bodyguards",
+      "ru": "Барьерная руна телохранителей",
+      "href": "Warding_Rune_of_Bodyguards",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Courage",
+      "ru": "Барьерная руна храбрости",
+      "href": "Warding_Rune_of_Courage",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Desperation",
+      "ru": "Барьерная руна отчаяния",
+      "href": "Warding_Rune_of_Desperation",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Disintegration",
+      "ru": "Барьерная руна расщепления",
+      "href": "Warding_Rune_of_Disintegration",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Equinox",
+      "ru": "Барьерная руна равноденствия",
+      "href": "Warding_Rune_of_Equinox",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Glancing",
+      "ru": "Барьерная руна скольжения",
+      "href": "Warding_Rune_of_Glancing",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Heart",
+      "ru": "Барьерная руна сердца",
+      "href": "Warding_Rune_of_Heart",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Hollowing",
+      "ru": "Барьерная руна опустевания",
+      "href": "Warding_Rune_of_Hollowing",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Nourishment",
+      "ru": "Барьерная руна пропитания",
+      "href": "Warding_Rune_of_Nourishment",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Obsession",
+      "ru": "Барьерная руна одержимости",
+      "href": "Warding_Rune_of_Obsession",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Protection",
+      "ru": "Барьерная руна защиты",
+      "href": "Warding_Rune_of_Protection",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Reinforcement",
+      "ru": "Барьерная руна укрепления",
+      "href": "Warding_Rune_of_Reinforcement",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Salvaging",
+      "ru": "Барьерная руна обломков",
+      "href": "Warding_Rune_of_Salvaging",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Stability",
+      "ru": "Барьерная руна устойчивости",
+      "href": "Warding_Rune_of_Stability",
+      "tier": "ward"
+    },
+    {
+      "en": "Warding Rune of Symbiosis",
+      "ru": "Барьерная руна симбиоза",
+      "href": "Warding_Rune_of_Symbiosis",
+      "tier": "ward"
+    }
+  ]
+}

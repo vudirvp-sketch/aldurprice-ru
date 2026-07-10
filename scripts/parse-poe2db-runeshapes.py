@@ -6,6 +6,21 @@ Downloads https://poe2db.tw/ru/Runeshape_Combinations and the EN equivalent,
 extracts the RU↔EN name mapping for all runes, alloys, lineage runes, wards,
 ancients, and master runes, and saves as JSON.
 
+HTML structure (verified 2025-07):
+
+  Pattern A — base runes (top of page, level-range grid):
+    <a href="Fire_Rune">
+      <img data-bs-title=" Руна огня" ... />
+    </a>
+
+  Pattern B — combinations / alloys / lineage / ancient / ward runes (tables):
+    <a class="whiteitem SoulCore" href="Farruls_Rune_of_the_Chase">
+      <img ... />Руна погони Фаррул
+    </a>
+
+Pattern B also lists some general currency (Divine Orb, etc.) on the same page;
+we filter by href keyword ("Rune" or "Alloy") to keep only runeshape items.
+
 Usage:
     python scripts/parse-poe2db-runeshapes.py [--output PATH] [--dry-run] [--verbose]
 
@@ -35,19 +50,33 @@ RU_URL = "https://poe2db.tw/ru/Runeshape_Combinations"
 EN_URL = "https://poe2db.tw/us/Runeshape_Combinations"
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 
-# Tiers based on poe2db categorization
-TIER_KEYWORDS = {
-    "alloy": ["сплав", "alloy"],
-    "lineage": ["фаррул", "ассандр", "сеске", "гирт", "маннан", "сакаваль",
-                "граннель", "фенум", "великого волка", "лельда", "гестра",
-                "мирк", "краценн", "farrul", "assandra", "seske", "girte",
-                "mannan", "sakaval", "grannel", "fenuma", "great wolf",
-                "lelde", "hestra", "mire", "kracenne"],
-    "ward": ["барьерная руна", "ward rune"],
-    "ancient": ["древняя руна", "ancient rune"],
-    "master": ["мастерская руна", "master rune"],
-    "special": ["проводящая", "рунное отведение", "conducting", "rune diversion"],
-}
+# Href must contain one of these (case-insensitive) to be considered a runeshape
+# item. Excludes general currency (Mirror_of_Kalandra, Divine_Orb, etc.).
+HREF_KEYWORDS = ("rune", "alloy")
+
+# Tier detection by English name keywords (lowercased).
+# Order matters: lineage must be checked before basic, since lineage runes
+# also contain "Rune" in their name.
+TIER_RULES = [
+    ("alloy",    ["alloy"]),
+    ("lineage",  ["farrul", "assandra", "seske", "girte", "mannan", "sakaval",
+                  "grannel", "fenuma", "fenumus", "saqawal", "craiceann",
+                  "great wolf", "greatwolf", "lelde", "hestra",
+                  "mire", "myrk", "kracenne", "thane", "countess", "courtesan",
+                  "hedgewitch", "lady"]),
+    ("ward",     ["warding rune", "ward rune"]),
+    ("ancient",  ["ancient rune"]),
+    ("master",   ["masterwork rune", "master rune"]),
+    ("special",  ["charging rune", "rune diversion", "conducting rune"]),
+]
+
+
+def detect_tier(en_name: str) -> str:
+    n = en_name.lower()
+    for tier, kws in TIER_RULES:
+        if any(kw in n for kw in kws):
+            return tier
+    return "basic"
 
 
 def fetch_page(url: str, verbose: bool = False) -> str:
@@ -58,99 +87,121 @@ def fetch_page(url: str, verbose: bool = False) -> str:
     return resp.text
 
 
-def extract_combinations(html_text: str, lang: str, verbose: bool = False) -> dict[str, dict]:
-    """
-    Extract runeshape names from poe2db HTML.
+def clean_title(title: str) -> str:
+    """Strip leading 'Level X - Y ' prefix that poe2db embeds in Pattern A titles.
 
-    Returns: {canonical_key: {"name": str, "tier": str}}
+    'Level 24 - 100 Руна барьера' → 'Руна барьера'
+    'Level 15 - 40 Fire Rune'      → 'Fire Rune'
+    """
+    return re.sub(r"^Level\s+\d+\s*-\s*\d+\s+", "", title).strip()
+
+
+def href_is_rune_like(href: str) -> bool:
+    h = href.lower()
+    return any(kw in h for kw in HREF_KEYWORDS)
+
+
+def extract(html_text: str, verbose: bool = False) -> dict[str, str]:
+    """
+    Extract {href: localised_name} pairs from a poe2db Runeshape_Combinations page.
+
+    Combines:
+      Pattern A — <a href><img data-bs-title="..."/></a>  (top-of-page grid)
+      Pattern B — <a href><img/>Text</a>                   (combination tables)
+
+    Pattern B is filtered to hrefs containing 'rune' or 'alloy' to exclude
+    general currency (Mirror of Kalandra, Divine Orb, etc.) which also appears
+    on this page in the same HTML structure.
     """
     tree = html.fromstring(html_text)
-    combinations = {}
+    items: dict[str, str] = {}
 
-    # Strategy 1: Look for table rows with data-name attributes
-    rows = tree.xpath("//tr[@data-name] | //tr[contains(@class, 'runeshape')]")
-    for row in rows:
-        name = row.get("data-name") or row.get("data-full-name")
-        if not name:
-            cells = row.xpath(".//td")
-            if cells:
-                name = cells[0].text_content().strip()
-        if name and len(name) > 2:
-            key = name.lower().replace(" ", "-").replace("'", "")
-            combinations[key] = {"name": name, "tier": detect_tier(name)}
+    # Pattern A: data-bs-title on inner <img>
+    for a in tree.xpath('//a[.//img[@data-bs-title]]'):
+        href = (a.get("href") or "").strip()
+        if not href:
+            continue
+        img = a.xpath('.//img[@data-bs-title]')[0]
+        title = clean_title((img.get("data-bs-title") or "").strip())
+        if title and href_is_rune_like(href):
+            items[href] = title
 
-    # Strategy 2: Look for specific Cyrillic/Latin patterns in text
-    if not combinations:
-        if lang == "ru":
-            pattern = re.compile(r"([А-Яа-яЁё][А-Яа-яЁё\s'\-]{4,60})")
-        else:
-            pattern = re.compile(r"([A-Z][a-zA-Z\s'\-]{4,60})")
-        text_content = tree.text_content()
-        matches = pattern.findall(text_content)
-        for match in matches:
-            match = match.strip()
-            if 5 <= len(match) <= 60 and is_rune_like(match, lang):
-                key = match.lower().replace(" ", "-").replace("'", "")
-                if key not in combinations:
-                    combinations[key] = {"name": match, "tier": detect_tier(match)}
+    # Pattern B: items in combination tables. Two sub-variants seen in the wild:
+    #   B1: <a class="..."><img/>Text</a>  — text in img.tail (alloys, etc.)
+    #   B2: <a class="whiteitem SoulCore">Text</a>  — text in a.text, no <img>
+    #       (lineage runes, ancient runes, ward runes)
+    # Filter hrefs to rune/alloy-like to exclude general currency that also
+    # appears in tables on this page.
+    for a in tree.xpath('//a[@href]'):
+        href = (a.get("href") or "").strip()
+        if not href or not href_is_rune_like(href):
+            continue
+        # Skip navigation/relative links like "/ru/Runeshape_Combinations"
+        # and anchor links like "#Alloys", "#Runes"
+        if href.startswith("/") or href.startswith("#"):
+            continue
+        # Don't overwrite Pattern A entries (they're more precise for base runes)
+        if href in items:
+            continue
+
+        # Try a.text first (B2), then img.tail (B1)
+        title = clean_title((a.text or "").strip())
+        if not title:
+            for img in a.xpath('./img'):
+                tail = clean_title((img.tail or "").strip())
+                if tail:
+                    title = tail
+                    break
+        if not title:
+            continue
+        # Skip if title is identical to href (navigation links, not items)
+        if title == href:
+            continue
+        # Skip obvious non-item text (e.g., "x1", "Lv70+", currency amounts)
+        if re.fullmatch(r"x\d+|Lv[\d\-+]+|\d+(?:\.\d+)?", title):
+            continue
+        items[href] = title
 
     if verbose:
-        print(f"    Found {len(combinations)} {lang} combinations")
-    return combinations
+        print(f"    Extracted {len(items)} unique items (by href)")
+    return items
 
 
-def detect_tier(name: str) -> str:
-    name_lower = name.lower()
-    for tier, keywords in TIER_KEYWORDS.items():
-        if any(kw in name_lower for kw in keywords):
-            return tier
-    return "basic"
+def href_to_canonical(href: str) -> str:
+    """Convert href slug to a canonical English name (best-effort).
+
+    'Fire_Rune' → 'Fire Rune'
+    'Farruls_Rune_of_the_Chase' → "Farrul's Rune of the Chase"
+    'The_Runefathers_Alloy' → "The Runefather's Alloy"
+    """
+    return (href.replace("_", " ")
+                .replace(" s ", "'s ")
+                .strip())
 
 
-def is_rune_like(name: str, lang: str) -> bool:
-    """Heuristic: does this look like a runeshape combination name?"""
-    name_lower = name.lower()
-    if lang == "ru":
-        return "рун" in name_lower or "сплав" in name_lower
-    else:
-        return "rune" in name_lower or "alloy" in name_lower
+def merge_ru_en(ru: dict[str, str], en: dict[str, str], verbose: bool = False) -> list[dict]:
+    """
+    Merge RU and EN by canonical key (href).
 
-
-def merge_ru_en(ru_combos: dict, en_combos: dict, verbose: bool = False) -> list[dict]:
-    """Merge RU and EN by canonical key."""
-    merged = []
-    matched_en_keys = set()
-
-    for key, ru_data in ru_combos.items():
-        en_data = en_combos.get(key)
-        if en_data:
+    Both dicts are {href: localised_title}. Join on href.
+    """
+    merged: list[dict] = []
+    for href in sorted(ru.keys() | en.keys()):
+        ru_name = ru.get(href)
+        en_name = en.get(href)
+        if ru_name and en_name:
             merged.append({
-                "en": en_data["name"],
-                "ru": ru_data["name"],
-                "tier": ru_data.get("tier", "unknown")
+                "en": en_name,
+                "ru": ru_name,
+                "href": href,
+                "tier": detect_tier(en_name),
             })
-            matched_en_keys.add(key)
-        else:
-            # Try fuzzy: same tier, similar first letters
-            ru_first = ru_data["name"][0].lower() if ru_data["name"] else ""
-            candidates = [
-                v for k, v in en_combos.items()
-                if k not in matched_en_keys
-                and v.get("tier") == ru_data.get("tier")
-                and v["name"][0].lower() == ru_first
-            ]
-            if candidates:
-                en_data = candidates[0]
-                merged.append({
-                    "en": en_data["name"],
-                    "ru": ru_data["name"],
-                    "tier": ru_data.get("tier", "unknown")
-                })
-                matched_en_keys.add(en_data["name"].lower().replace(" ", "-").replace("'", ""))
-
+        elif ru_name and verbose:
+            print(f"    WARN: ru-only entry href={href!r} ru={ru_name!r}")
+        elif en_name and verbose:
+            print(f"    WARN: en-only entry href={href!r} en={en_name!r}")
     if verbose:
         print(f"    Merged: {len(merged)} combinations")
-
     return merged
 
 
@@ -166,12 +217,12 @@ def main() -> None:
     print("Parsing runeshape combinations from poe2db.tw...")
 
     ru_html = fetch_page(RU_URL, args.verbose)
-    ru_combos = extract_combinations(ru_html, "ru", args.verbose)
+    ru_items = extract(ru_html, args.verbose)
 
     en_html = fetch_page(EN_URL, args.verbose)
-    en_combos = extract_combinations(en_html, "en", args.verbose)
+    en_items = extract(en_html, args.verbose)
 
-    merged = merge_ru_en(ru_combos, en_combos, args.verbose)
+    merged = merge_ru_en(ru_items, en_items, args.verbose)
 
     if not merged:
         print("\nWARNING: No combinations extracted. The poe2db.tw HTML structure may have changed.")
@@ -182,7 +233,8 @@ def main() -> None:
         "version": 1,
         "source": RU_URL,
         "fetched_at": datetime.now(timezone.utc).isoformat(),
-        "combinations": sorted(merged, key=lambda c: (c["tier"], c["en"]))
+        "count": len(merged),
+        "combinations": sorted(merged, key=lambda c: (c["tier"], c["en"].lower())),
     }
 
     if args.dry_run:
@@ -199,7 +251,7 @@ def main() -> None:
     print(f"\nSaved {len(merged)} combinations to {out_path}")
 
     # Print tier summary
-    tier_counts = {}
+    tier_counts: dict[str, int] = {}
     for c in merged:
         tier_counts[c["tier"]] = tier_counts.get(c["tier"], 0) + 1
     print("\nBy tier:")

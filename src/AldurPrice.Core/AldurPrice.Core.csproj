@@ -11,4 +11,13 @@
     <PackageReference Include="Microsoft.Extensions.Options" />
   </ItemGroup>
 
+  <!-- Bundled runeshape combinations (output of scripts/parse-poe2db-runeshapes.py).
+       Embedded so the translator works without filesystem access at runtime.
+       Re-run the parser after each league patch to refresh. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\ocr\runeshape-combinations-ru.json">
+      <LogicalName>AldurPrice.Core.Translation.runeshape-combinations-ru.json</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

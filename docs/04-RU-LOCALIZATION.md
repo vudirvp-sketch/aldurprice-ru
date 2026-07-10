@@ -6,7 +6,7 @@
 
 Русификация состоит из трёх независимых частей, каждая со своим источником данных и стратегией:
 
-1. **Локализация предметных строк (OCR → цены)** — перевод распознанных русских названий предметов на английский для поиска цен. Источник: Exiled Exchange 2 (4319 базовых предметов) + poe2db.tw (100+ рунных комбинаций).
+1. **Локализация предметных строк (OCR → цены)** — перевод распознанных русских названий предметов на английский для поиска цен. Источник: Exiled Exchange 2 (4319 базовых предметов, bundle в M1.5) + poe2db.tw (153 рунных комбинации, ✅ bundled).
 
 2. **Локализация UI-строк** — перевод интерфейса приложения (кнопки, лейблы, диалоги, сообщения). Источник: ручной перевод, хранится в `.resx`-файлах.
 
@@ -63,90 +63,27 @@
   "version": 1,
   "source": "https://poe2db.tw/ru/Runeshape_Combinations",
   "fetched_at": "2025-07-10T12:00:00Z",
+  "count": 153,
   "combinations": [
-    { "en": "Rune of Fire", "ru": "Руна огня", "tier": "basic" },
-    { "en": "Rune of Cold", "ru": "Руна холода", "tier": "basic" },
-    { "en": "Rune of Lightning", "ru": "Руна молнии", "tier": "basic" },
-    { "en": "Rune of Storms", "ru": "Руна бури", "tier": "basic" },
-    { "en": "Rune of Pulse", "ru": "Руна импульса", "tier": "basic" },
-    { "en": "Rune of Bleeding", "ru": "Руна кровопускания", "tier": "basic" },
-    { "en": "Rune of Stone", "ru": "Руна камня", "tier": "basic" },
-    { "en": "Rune of Adaptation", "ru": "Руна адаптации", "tier": "basic" },
-    { "en": "Rune of Sorcery", "ru": "Руна колдовства", "tier": "basic" },
-    { "en": "Rune of Toxins", "ru": "Руна токсинов", "tier": "basic" },
-    { "en": "Rune of Electrify", "ru": "Руна электризации", "tier": "basic" },
-    { "en": "Rune of Warding", "ru": "Руна защиты", "tier": "basic" },
-    { "en": "Rune of Vortex", "ru": "Руна вихря", "tier": "basic" },
-    { "en": "Rune of Sight", "ru": "Руна видения", "tier": "basic" },
-    { "en": "Rune of Flow", "ru": "Руна прилива", "tier": "basic" },
-    { "en": "Rune of Rebirth", "ru": "Руна перерождения", "tier": "basic" },
-    { "en": "Rune of Rainbow", "ru": "Руна радуги", "tier": "basic" },
-    { "en": "Rune of Volcano", "ru": "Руна вулкана", "tier": "basic" },
-    { "en": "Rune of Moon", "ru": "Руна луны", "tier": "basic" },
-    { "en": "Rune of Heavens", "ru": "Руна небес", "tier": "basic" },
-    { "en": "Rune of Wealth", "ru": "Руна богатства", "tier": "basic" },
-    { "en": "Rune of Fury", "ru": "Руна ярости", "tier": "basic" },
-    { "en": "Rune of Wisdom", "ru": "Руна мудрости", "tier": "basic" },
-    { "en": "Rune of Sky", "ru": "Руна неба", "tier": "basic" },
-    { "en": "Rune of Earth", "ru": "Руна земли", "tier": "basic" },
-    { "en": "Rune of Life", "ru": "Руна жизни", "tier": "basic" },
-    { "en": "Rune of Bonding", "ru": "Руна связи", "tier": "basic" },
-    { "en": "Rune of Barrier", "ru": "Руна барьера", "tier": "basic" },
-    { "en": "Rune of Soul", "ru": "Руна души", "tier": "basic" },
-    { "en": "Rune of Death", "ru": "Руна смерти", "tier": "basic" },
-    { "en": "Rune of Vow", "ru": "Руна клятвы", "tier": "basic" },
-    { "en": "Rune of Time", "ru": "Руна времени", "tier": "basic" },
-    { "en": "Rune of Strength", "ru": "Руна силы", "tier": "basic" },
-    { "en": "Runefather's Alloy", "ru": "Сплав Рунного отца", "tier": "alloy" },
-    { "en": "Runelord's Alloy", "ru": "Сплав Повелителя рун", "tier": "alloy" },
-    { "en": "Farrul's Chase Rune", "ru": "Руна погони Фаррул", "tier": "lineage" },
-    { "en": "Assandra's Forest Witch Wisdom Rune", "ru": "Руна мудрости лесной ведьмы Ассандры", "tier": "lineage" },
-    { "en": "Countess Seske's Accuracy Rune", "ru": "Руна меткости графини Сеске", "tier": "lineage" },
-    { "en": "Rune Diversion", "ru": "Рунное отведение", "tier": "special" },
-    { "en": "Tan Girte's Wildness Rune", "ru": "Руна дикости тана Гирта", "tier": "lineage" },
-    { "en": "Courtesan Mannan's Cruelty Rune", "ru": "Руна жестокости куртизанки Маннан", "tier": "lineage" },
-    { "en": "Sakaval's Memory Rune", "ru": "Руна памяти Сакаваля", "tier": "lineage" },
-    { "en": "Tan Grannel's Mastery Rune", "ru": "Руна мастерства тана Граннеля", "tier": "lineage" },
-    { "en": "Farrul's Grace Rune", "ru": "Руна грации Фаррул", "tier": "lineage" },
-    { "en": "Fenuma's Agony Rune", "ru": "Руна агонии Фенумы", "tier": "lineage" },
-    { "en": "Sakaval's Sky Rune", "ru": "Руна неба Сакаваля", "tier": "lineage" },
-    { "en": "Great Wolf's Will Rune", "ru": "Руна воли Великого волка", "tier": "lineage" },
-    { "en": "Great Wolf's Claws Rune", "ru": "Руна когтей Великого волка", "tier": "lineage" },
-    { "en": "Tan Lelde's Spring Rune", "ru": "Руна весны тана Лельда", "tier": "lineage" },
-    { "en": "Lady Hestra's Winter Rune", "ru": "Руна зимы леди Гестры", "tier": "lineage" },
-    { "en": "Tan Mire's Summer Rune", "ru": "Руна лета тана Мирка", "tier": "lineage" },
-    { "en": "Fenuma's Desiccation Rune", "ru": "Руна высушивания Фенумы", "tier": "lineage" },
-    { "en": "Fenuma's Weaving Rune", "ru": "Руна плетения Фенумы", "tier": "lineage" },
-    { "en": "Kracenne's Restoration Rune", "ru": "Руна восстановления Краценна", "tier": "lineage" },
-    { "en": "Farrul's Hunt Rune", "ru": "Руна охоты Фаррул", "tier": "lineage" },
-    { "en": "Sakaval's Erosion Rune", "ru": "Руна эрозии Сакаваля", "tier": "lineage" },
-    { "en": "Kracenne's Barrier Rune", "ru": "Руна барьера Краценна", "tier": "lineage" },
-    { "en": "Master Rune", "ru": "Мастерская руна", "tier": "master" },
-    { "en": "Conducting Rune", "ru": "Проводящая руна", "tier": "special" },
-    { "en": "Emptying Ward Rune", "ru": "Барьерная руна опустевания", "tier": "ward" },
-    { "en": "Bodyguard Ward Rune", "ru": "Барьерная руна телохранителей", "tier": "ward" },
-    { "en": "Equinox Ward Rune", "ru": "Барьерная руна равноденствия", "tier": "ward" },
-    { "en": "Possession Ward Rune", "ru": "Барьерная руна одержимости", "tier": "ward" },
-    { "en": "Carapace Ward Rune", "ru": "Барьерная руна панциря", "tier": "ward" },
-    { "en": "Ancient Witchcraft Rune", "ru": "Древняя руна ведьмовства", "tier": "ancient" },
-    { "en": "Ancient Decay Rune", "ru": "Древняя руна тлена", "tier": "ancient" },
-    { "en": "Ancient Finding Rune", "ru": "Древняя руна находки", "tier": "ancient" },
-    { "en": "Ancient Rule Rune", "ru": "Древняя руна правления", "tier": "ancient" },
-    { "en": "Ancient Mastery Rune", "ru": "Древняя руна мастерства", "tier": "ancient" },
-    { "en": "Ancient Shatter Rune", "ru": "Древняя руна разбивания", "tier": "ancient" },
-    { "en": "Ancient Titan Rune", "ru": "Древняя руна Титана", "tier": "ancient" },
-    { "en": "Rune of Strife", "ru": "Руна противоборства", "tier": "basic" },
-    { "en": "Rune of Living Flame", "ru": "Руна живого пламени", "tier": "basic" },
-    { "en": "Ancient Duel Rune", "ru": "Древняя руна поединка", "tier": "ancient" },
-    { "en": "Ancient Reckoning Rune", "ru": "Древняя руна расплаты", "tier": "ancient" },
-    { "en": "Ancient Sabotage Rune", "ru": "Древняя руна подрыва", "tier": "ancient" },
-    { "en": "Ancient Enmity Rune", "ru": "Древняя руна вражды", "tier": "ancient" },
-    { "en": "Ancient Horde Rune", "ru": "Древняя руна орды", "tier": "ancient" }
+    { "en": "Fire Rune",        "ru": "Руна огня",         "tier": "basic" },
+    { "en": "Cold Rune",        "ru": "Руна холода",       "tier": "basic" },
+    { "en": "Adaptive Rune",    "ru": "Руна адаптации",    "tier": "basic" },
+    { "en": "Masterwork Rune",  "ru": "Мастерская руна",   "tier": "master" },
+    { "en": "Adaptive Alloy",   "ru": "Адаптивный сплав",  "tier": "alloy" },
+    { "en": "Ward Rune",        "ru": "Руна барьера",      "tier": "ward" },
+    { "en": "Ancient Rune of Witchcraft", "ru": "Древняя руна ведьмовства", "tier": "ancient" },
+    { "en": "Farrul's Rune of the Chase", "ru": "Руна погони Фаррул",       "tier": "lineage" },
+    { "en": "Charging Rune",    "ru": "Руна заряда",        "tier": "special" }
+    // ... полный список — в ocr/runeshape-combinations-ru.json (153 записи)
   ]
 }
 ```
 
-**Объём:** ~80–120 записей (зависит от текущего патча лиги). Точное количество определится после завершения парсера.
+**Имена рун в poe2db** используют форму «Adjective Rune» (Fire Rune, Cold Rune), а НЕ «Rune of Adjective» (Rune of Fire). Это актуальные имена из BaseItemTypes.json PoE2. Аналогично: lineage runes называются «Farrul's Rune of the Chase», а НЕ «Farrul's Chase Rune»; ward runes — «Ward Rune», а НЕ «Emptying Ward Rune». Имена могут меняться с патчами лиги — парсер нужно перезапускать после каждого крупного патча.
+
+**Объём:** 153 записи по состоянию на 2025-07 (alloy 13, ancient 13, basic 82, lineage 21, master 1, special 3, ward 20). Объём меняется с патчами лиги — после каждого патча перезапускать `scripts/parse-poe2db-runeshapes.py`.
+
+**Загрузка в runtime:** JSON embedded как resource в `AldurPrice.Core.csproj` (`<EmbeddedResource>` с `LogicalName=AldurPrice.Core.Translation.runeshape-combinations-ru.json`). `RuneshapeCombinationTranslator` грузит его через `Assembly.GetManifestResourceStream` — не требует файловых путей. Для тестов — stream-конструктор с inline JSON. См. AD-002 в STATUS.md.
 
 **Лицензия:** poe2db.tw — fan-wiki, данные публично доступны. Атрибуция в `LICENSE` и в `ocr/runeshape-combinations-ru.json` через поле `"source"`.
 
@@ -164,28 +101,32 @@
 Вход: русское название из OCR (например, "Руна огня")
   ↓
 [1] RuneshapeCombinationTranslator.TryTranslate("Руна огня")
-    → точное совпадение в runeshape-combinations-ru.json
-    → найдено: "Rune of Fire" ✅ RETURN
+    → exact match в embedded runeshape-combinations-ru.json (OrdinalIgnoreCase)
+    → если не exact: stem match (по слову, через RussianStemmer)
+    → если не stem: Levenshtein distance ≤ 2
+    → найдено: "Fire Rune" ✅ RETURN
   ↓ (если не найдено)
 [2] TranslationCache.ToEnglish("Руна огня")
     → кэш из .dat файла (быстрее всего)
     → если загружен и найдено: RETURN
   ↓ (если не найдено)
 [3] rus.ndjson lookup (через TranslationCache)
-    → 4319 базовых предметов
+    → 4319 базовых предметов из Exiled Exchange 2
     → если найдено: RETURN
   ↓ (если не найдено)
 [4] Bundled translations.json: "Руна огня##rus"
     → fallback для валюты (100 предметов)
     → если найдено: RETURN
   ↓ (если не найдено)
-[5] RussianStemmer + Levenshtein
-    → нормализация окончаний, fuzzy matching
-    → если найдено с distance ≤2: RETURN
+[5] RussianStemmer + Levenshtein на всём словаре рунных комбинаций
+    → уже выполнено в [1] (fallback внутри RuneshapeCombinationTranslator)
+    → для общих предметов нужен кандидат-сет (rus.ndjson) — M1.5+
   ↓ (если не найдено)
-[6] Return as-is (оригинальное русское имя)
+[6] Return null
     → цен не будет, в логе warning
 ```
+
+**Текущее покрытие (M1.2):** только `[1]` — рунные комбинации (~150 предметов). `[2]`-`[4]` появятся в M1.5 вместе с rus.ndjson из Exiled Exchange 2.
 
 ### 3.2. RuneshapeCombinationTranslator
 
@@ -462,7 +403,7 @@ public static class Poe2ConfigFile
 - `RuneshapeCombinationTranslatorTests` — все 80+ рунных комбинаций должны переводиться точно
 - `RussianStemmerTests` — 50+ слов во всех падежах
 - `RussianOcrDistortionTests` — 30+ вариантов OCR-искажений («Руну огня», «Рунаагня», «Руна огн»)
-- `ItemNameTranslatorRuTests` — end-to-end: «Подчиняющая порча» → «Abiding Hex», «Руна огня» → «Rune of Fire»
+- `ItemNameTranslatorRuTests` — end-to-end: «Подчиняющая порча» → «Abiding Hex», «Руна огня» → «Fire Rune»
 
 ### 6.2. Integration-тесты
 
