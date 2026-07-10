@@ -1,0 +1,62 @@
+name: Update translations
+
+on:
+  schedule:
+    # Every Monday at 03:00 UTC
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests lxml
+
+      - name: Pull from Exiled Exchange 2
+        run: python scripts/update-translations.py --verbose
+
+      - name: Parse poe2db.tw runeshapes
+        run: python scripts/parse-poe2db-runeshapes.py --output ocr/runeshape-combinations-ru.json --verbose
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create PR
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            chore: update translations from Exiled Exchange 2 and poe2db.tw
+
+            Automated weekly update of:
+            - ocr/translations/*.ndjson (Exiled Exchange 2)
+            - ocr/runeshape-combinations-ru.json (poe2db.tw)
+          title: 'chore: weekly translation update'
+          branch: 'chore/translations-update'
+          labels: 'localization, automated'
+          body: |
+            Automated weekly update of translation data.
+
+            Sources:
+            - Exiled Exchange 2 (4319 items per language)
+            - poe2db.tw (runeshape combinations)
+
+            Please review and merge if everything looks good.

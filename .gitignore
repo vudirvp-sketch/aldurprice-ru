@@ -1,0 +1,62 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.idea/
+
+# Build artifacts
+artifacts/
+publish/
+*.exe
+*.dll
+*.pdb
+*.zip
+
+# Tesseract native (downloaded by MSBuild)
+native/
+
+# Tesseract traineddata (downloaded by MSBuild, except .gitkeep)
+ocr/tesseract/*.traineddata
+ocr/tesseract/.gitkeep
+
+# Logs and crash reports
+logs/
+crash-reports/
+debug-images/
+
+# Local config (user overrides)
+config/appsettings.local.json
+config/secrets.json
+
+# SQLite database (created at runtime)
+*.db
+*.db-wal
+*.db-shm
+
+# Coverage
+coverage/
+coverage-report/
+tests/*/TestResults/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary
+*.tmp
+*.bak
+*.swp
+*~
+
+# Benchmark results (keep folder, ignore files)
+benchmarks/*.json
+!benchmarks/.gitkeep
