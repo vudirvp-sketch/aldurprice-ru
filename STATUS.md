@@ -47,6 +47,10 @@
 9. M1.9 — Конфигурация: `SettingsController`, `Poe2ConfigFile`, валидаторы.
 10. M1.10 — Тесты на реальных скриншотах + оставшиеся компоненты OCR (`OcrLeagueWindowReader`, `ResolutionProfiles`, MSBuild target `EnsureTessData`).
 
+## Бэклог (после M1)
+
+- **M2.7 — Rune Value Highlight** (опционально, пост-MVP): подсветка ценных рун, вложенных в ремнант, через template matching по иконкам. Тир-лист: S+ Opulent / S Power,Death,Bond,Oath / A Time,Rebirth / B Purple / C Blue. Не OCR-текст, а иконки. Зависит от M1.7 (оверлей) + M1.10 (скриншоты для шаблонов). См. [docs/05-ROADMAP.md](docs/05-ROADMAP.md#m27--rune-value-highlight-опциональная-фича--️-пост-mvp-не-блокирует-v030-beta).
+
 ## Known Issues
 
 ### KI-001: Подавлены анализаторы CA1822, CS1591, CA1848, CA1805

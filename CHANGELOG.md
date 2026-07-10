@@ -5,6 +5,18 @@
 
 ## [Unreleased]
 
+### Added — Roadmap: M2.7 Rune Value Highlight (опциональная фича, пост-MVP)
+
+- **`docs/05-ROADMAP.md`** — добавлен раздел [M2.7 — Rune Value Highlight](docs/05-ROADMAP.md#m27--rune-value-highlight-опциональная-фича--️-пост-mvp-не-блокирует-v030-beta):
+  - Подсветка ценных рун, вложенных в ремнант (не наград, а переносимых рун), через template matching по иконкам.
+  - Тир-лист: S+ Opulent / S Power, Death, Bond, Oath / A Time, Rebirth / B Purple / C Blue.
+  - Подход: НЕ OCR-текст, а color histogram + normalized cross-correlation по PNG-шаблонам из `config/rune-icons/`.
+  - Редактируемый `config/rune-tiers.json` — пользователь может переопределить тир-лист под свой taste.
+  - Зависимости: M1.7 (оверлей) + M1.10 (скриншоты для шаблонов).
+  - Не блокирует релиз v0.3.0-beta — может быть отложен в v0.4.0-beta.
+- **`STATUS.md`** — добавлен раздел «Бэклог (после M1)» с кратким описанием M2.7.
+- **`docs/05-ROADMAP.md`** — обзорная таблица milestones обновлена (M2 цель → «+ опционально подсветка рун»), критерии готовности M2 дополнены пунктом про M2.7.
+
 ### Added — M1.3: OCR-движки и пайплайн (частично)
 
 - **`src/AldurPrice.Ocr/WindowsOcrEngine.cs`** — реальная имплементация (был stub):
