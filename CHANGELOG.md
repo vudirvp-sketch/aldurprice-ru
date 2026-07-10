@@ -5,6 +5,35 @@
 
 ## [Unreleased]
 
+### Added — M1.5-partial: TranslationCache + NDJSON-загрузка
+
+Первая часть M1.5: `TranslationCache` переписан из M0-stub'а в реальную имплементацию, `ItemNameTranslator` получил fallback [2] для базовых предметов. HTTP-клиенты (`Poe2ScoutClient`, `PoeNinjaClient`) отложены — нужны реальные API-response fixtures (см. STATUS.md → KI-017, «Что дальше»).
+
+- **`src/AldurPrice.Core/Translation/TranslationCache.cs`** — реальная имплементация (был M0 stub):
+  - `ConcurrentDictionary<string, string>` с `StringComparer.OrdinalIgnoreCase` — потокобезопасный exact-match lookup.
+  - `LoadNdjson(Stream)` — парсинг NDJSON (формат Exiled Exchange 2): построчно, `JsonDocument.Parse` на каждой строке, извлечение `name` → `refName`. Пропуск: пустых `name`/`refName`, записей где `name == refName` (нет перевода), повреждённых строк (skip, не падать). Бросает `InvalidDataException` если 0 валидных пар.
+  - `LoadEmbeddedOrDefault()` (static factory) — пытается загрузить embedded `AldurPrice.Core.Translation.rus.ndjson`. Если ресурс отсутствует (NDJSON не bundled — KI-017) — возвращает пустой кэш (graceful degradation: рунные комбинации продолжают работать через [1]). Если bundled, но пуст/повреждён — `InvalidDataException` (fail-fast).
+  - `Store(source, target)` / `TryLookup(source)` / `Clear()` / `Count` — legacy API + new, теперь работают с реальным `_map`.
+- **`src/AldurPrice.Core/Translation/ItemNameTranslator.cs`** — fallback [2] через `TranslationCache`:
+  - Новый конструктор `ItemNameTranslator(RuneshapeCombinationTranslator, TranslationCache?)` — для DI и тестов.
+  - Default-конструктор вызывает `TranslationCache.LoadEmbeddedOrDefault()` — production path.
+  - `TryTranslate`: [1] RuneshapeCombinationTranslator → [2] TranslationCache.TryLookup (exact) → null.
+  - Существующие конструкторы сохранены для обратной совместимости с тестами.
+- **`src/AldurPrice.Core/AldurPrice.Core.csproj`** — `<EmbeddedResource Include="..\..\ocr\translations\rus.ndjson" Condition="Exists(...)">` — rus.ndjson embed'ится автоматически, если файл загружен через `scripts/update-translations.py`. Без файла build succeeds (ресурс опускается).
+- **`src/AldurPrice/App.xaml.cs`** — DI: `TranslationCache` регистрируется через factory `LoadEmbeddedOrDefault()` (вместо parameterless). DI-контейнер выбирает 2-параметровый конструктор `ItemNameTranslator(runeshape, cache)` — translator получает populated cache.
+- **`ocr/translations/README.md`** (NEW) — документация: формат NDJSON, как загрузить (`update-translations.py`), почему не committen по умолчанию.
+- **Тесты (28 новых):**
+  - `tests/AldurPrice.Core.Tests/TranslationCacheTests.cs` (17 тестов): загрузка NDJSON (валидные/пустые/whitespace/malformed/skip-логика), exact lookup (case-insensitive), Store/Clear, `LoadEmbeddedOrDefault` при отсутствии ресурса, edge-cases (null/empty throws).
+  - `tests/AldurPrice.Core.Tests/ItemNameTranslatorCacheFallbackTests.cs` (11 тест-кейсов): fallback [2] для базовых предметов, приоритет [1] > [2] (рунные комбинации не перекрываются cache), graceful degradation (null cache / empty cache), unknown items → null, eng passthrough.
+
+### Fixed — Warnings cleanup (18 → 0)
+
+Build M1.4-fix проходил с 18 warnings (несмотря на заявленные "0 warnings" в STATUS.md). Все починены:
+
+- **CA1873 (16 экз.)** — подавлен в `Directory.Build.props` (добавлен в `NoWarn`). Последовательно с уже подавленным `CA1848`: оба правила про high-performance logging (LoggerMessage source generator + expensive argument evaluation). Индивидуальные `IsEnabled`-guards сейчас были бы noise, который M3.7 (Serilog structured logging) всё равно уберёт. См. KI-001.
+- **CA1305** (`src/AldurPrice.Capture/PrintWindowCapture.cs:199`): `Marshal.GetLastWin32Error().ToString()` → `.ToString(CultureInfo.InvariantCulture)`. Добавлен `using System.Globalization`.
+- **CA1861** (`tests/AldurPrice.Capture.Tests/Poe2WindowLocatorTests.cs:228`): inline `new[] { "MyCustomPoE2" }` извлечён в `static readonly string[] CustomProcessNames` поле (выделяется один раз, не per-test-invocation).
+
 ### Fixed — M1.4-fix: NU1201 + скрытые баги M1.3
 
 После M1.4 commit-а первая попытка `dotnet build` на Windows падала с `NU1201`. После починки restore вскрылись ещё 2 скрытых бага в `AldurPrice.Ocr` (код M1.3 никогда не компилировался — restore падал раньше компиляции) и 3 бага в `RussianOcrPostProcessor` (тесты M1.3 никогда не запускались по той же причине). Все 6 багов починены в этой итерации.

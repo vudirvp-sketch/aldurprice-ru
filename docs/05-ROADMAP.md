@@ -130,7 +130,11 @@
 - [ ] `Pricing/PricingSourceRouter.cs` — маршрутизация между источниками
 - [ ] HTTP mock через WireMock.Net для тестов
 - [ ] Тесты: `Poe2ScoutClientTests`, `PoeNinjaClientTests`, `PricingSourceRouterTests`
-- [ ] Оценка: 10 часов
+- [x] `TranslationCache` — реальная имплементация (NDJSON-загрузка, exact-match, `LoadEmbeddedOrDefault`) — M1.5-partial
+- [x] `ItemNameTranslator` — fallback [2] через `TranslationCache` — M1.5-partial
+- [x] Тесты: `TranslationCacheTests` (17), `ItemNameTranslatorCacheFallbackTests` (11) — M1.5-partial
+- [ ] Загрузка `rus.ndjson` (4 319 предметов) через `scripts/update-translations.py` → embed в `AldurPrice.Core` (KI-017)
+- [ ] Оценка: 10 часов (потрачено ~4 на M1.5-partial, осталось ~6 на HTTP-клиенты)
 
 #### M1.6 — Кэш цен (in-memory, без persistence)
 - [ ] `Pricing/InMemoryPricingCache.cs` — `ConcurrentDictionary`-based, TTL 15 мин

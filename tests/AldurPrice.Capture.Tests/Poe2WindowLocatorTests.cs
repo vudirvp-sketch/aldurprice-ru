@@ -18,6 +18,10 @@ public sealed class Poe2WindowLocatorTests
     private static readonly ILogger<Poe2WindowLocator> NullLogger =
         NullLogger<Poe2WindowLocator>.Instance;
 
+    // CA1861: inline `new[] { ... }` as a repeatedly-passed argument should be a
+    // static readonly field so the array is allocated once, not per test invocation.
+    private static readonly string[] CustomProcessNames = { "MyCustomPoE2" };
+
     // ---- Имена процессов по умолчанию ----
 
     [Fact]
@@ -225,7 +229,7 @@ public sealed class Poe2WindowLocatorTests
             new ProcessSnapshot(1, "PathOfExileSteam", new IntPtr(0x1), "PoE2"),  // default name, не должен сматчиться
             new ProcessSnapshot(2, "MyCustomPoE2", new IntPtr(0x2), "Custom"),
         });
-        var locator = new Poe2WindowLocator(fake, NullLogger, new[] { "MyCustomPoE2" });
+        var locator = new Poe2WindowLocator(fake, NullLogger, CustomProcessNames);
 
         var result = locator.TryLocate();
 

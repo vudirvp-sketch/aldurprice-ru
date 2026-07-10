@@ -17,13 +17,16 @@
     <NeutralLanguage>en</NeutralLanguage>
     <!-- M0-suppressions: не все стабы ещё заменены на реальные имплементации.
          CA1822 (could-be-static) остаётся, потому что TierFallback, FallbackProvider,
-         TranslationCache, IdAliases — ещё стабы без instance state. Убрать когда они
-         будут реализованы (M1.5+ — TranslationCache с rus.ndjson, TierFallback с
-         реальным GREATER/PERFECT strip, FallbackProvider с Levenshtein+diacritics).
+         IdAliases — ещё стабы без instance state. Убрать когда они будут реализованы
+         (TierFallback с реальным GREATER/PERFECT strip, FallbackProvider с
+         Levenshtein+diacritics). TranslationCache реализован в M1.5-partial (больше не стаб).
          CS1591 (XML-документация) — ещё не везде добавлена.
-         CA1848 (LoggerMessage source generator) — отключён до M3.7 (Serilog structured logging).
+         CA1848 (LoggerMessage source generator) + CA1873 (logger argument may be expensive)
+         — оба отключены до M3.7 (Serilog structured logging + LoggerMessage source gen).
+         M3.7 заменит все logger-вызовы на high-performance source-gen — индивидуальные
+         IsEnabled-guards сейчас были бы noise, который M3.7 всё равно уберёт.
          CA1805 (явная инициализация bool = false) — отключена для Options-классов,
          где явная инициализация используется как документация дефолта. -->
-    <NoWarn>$(NoWarn);CA1822;CS1591;CA1848;CA1805</NoWarn>
+    <NoWarn>$(NoWarn);CA1822;CS1591;CA1848;CA1873;CA1805</NoWarn>
   </PropertyGroup>
 </Project>

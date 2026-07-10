@@ -76,7 +76,11 @@ public partial class App : Application
             services.AddSingleton<Core.Pricing.FallbackProvider>();
             services.AddSingleton<Core.Pricing.TierFallback>();
             services.AddSingleton<Core.Translation.RussianStemmer>();
-            services.AddSingleton<Core.Translation.TranslationCache>();
+            // TranslationCache: factory грузит embedded rus.ndjson (если bundled, иначе пустой — KI-017).
+            // DI выберет 2-параметровый конструктор ItemNameTranslator(runeshape, cache) →
+            // этот экземпляр инжектится в translator как fallback [2].
+            services.AddSingleton<Core.Translation.TranslationCache>(_ =>
+                Core.Translation.TranslationCache.LoadEmbeddedOrDefault());
             services.AddSingleton<Core.Translation.RuneshapeCombinationTranslator>();
             services.AddSingleton<Core.Translation.RussianOcrPostProcessor>();
             services.AddSingleton<Core.Contracts.IItemNameTranslator, Core.Translation.ItemNameTranslator>();

@@ -83,7 +83,7 @@ AldurPrice/
 │   │   │   └── IdAliases.cs                  # gcp, bauble, etc.
 │   │   ├── Translation/
 │   │   │   ├── ItemNameTranslator.cs         # Цепочка fallback'ов
-│   │   │   ├── TranslationCache.cs           # In-memory LRU
+│   │   │   ├── TranslationCache.cs           # NDJSON-loaded ru→en map (M1.5-partial)
 │   │   │   ├── RuneshapeCombinationTranslator.cs # poe2db mapping
 │   │   │   ├── RussianStemmer.cs             # Snowball RU stemmer (conservative)
 │   │   │   └── RussianOcrPostProcessor.cs    # Текстовая постобработка кириллицы (M1.3)
@@ -203,7 +203,10 @@ services.AddSingleton<Core.Pricing.Levenshtein>();
 services.AddSingleton<Core.Pricing.FallbackProvider>();
 services.AddSingleton<Core.Pricing.TierFallback>();
 services.AddSingleton<Core.Translation.RussianStemmer>();
-services.AddSingleton<Core.Translation.TranslationCache>();
+// TranslationCache: factory грузит embedded rus.ndjson (если bundled, иначе пустой — KI-017).
+// DI выберет 2-параметровый конструктор ItemNameTranslator(runeshape, cache).
+services.AddSingleton<Core.Translation.TranslationCache>(_ =>
+    Core.Translation.TranslationCache.LoadEmbeddedOrDefault());
 services.AddSingleton<Core.Translation.RuneshapeCombinationTranslator>();
 services.AddSingleton<Core.Translation.RussianOcrPostProcessor>();
 services.AddSingleton<Core.Contracts.IItemNameTranslator, Core.Translation.ItemNameTranslator>();
@@ -283,9 +286,11 @@ services.AddTransient<SettingsViewModel>();
     ↓ (extract "1x", "шт", trailing number, OCR distortions)
 [ParsedDetectedItem[] (Name, Quantity, Level)]
     ↓
-[9] IItemNameTranslator.ToEnglish(name)
-    ↓ (1) RuneshapeCombination → (2) TranslationCache .dat →
-       (3) rus.ndjson → (4) translations.json → (5) RussianStemmer + Levenshtein
+[9] IItemNameTranslator.TryTranslate(name)
+    ↓ (1) RuneshapeCombinationTranslator (exact/stem/Levenshtein, ~150 рунных комбинаций)
+       (2) TranslationCache.TryLookup (exact, ~4 319 базовых предметов из rus.ndjson — M1.5-partial)
+       (3) translations.json (валюта, M1.5+ не реализовано)
+       → null (цен не будет)
 [englishNames]
     ↓
 [10] IPricingCache.TryGetPrice(englishName)

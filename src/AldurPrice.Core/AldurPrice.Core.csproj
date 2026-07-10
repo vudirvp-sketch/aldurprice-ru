@@ -20,4 +20,16 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <!-- Bundled base-item translations from Exiled Exchange 2 (scripts/update-translations.py).
+       Condition=Exists: rus.ndjson НЕ bundled по умолчанию (~2 МБ, 4 319 строк) — пользователь
+       запускает update-translations.py для загрузки, затем rebuild. Пока файла нет — ресурс
+       опускается, TranslationCache.LoadEmbeddedOrDefault() возвращает пустой кэш (KI-017),
+       перевод рунных комбинаций через RuneshapeCombinationTranslator продолжает работать. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\ocr\translations\rus.ndjson"
+                      Condition="Exists('..\..\ocr\translations\rus.ndjson')">
+      <LogicalName>AldurPrice.Core.Translation.rus.ndjson</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

@@ -10,28 +10,24 @@
 | Подзадача | Статус | Замечание |
 |---|---|---|
 | M1.1 — Парсер poe2db.tw | ✅ | Переписан под реальную HTML-структуру poe2db. `ocr/runeshape-combinations-ru.json`: 153 записи (alloy 13, ancient 13, basic 82, lineage 21, master 1, special 3, ward 20). |
-| M1.2 — Core: ItemNameParser, ItemNameTranslator, RussianStemmer, RuneshapeCombinationTranslator | ✅ (частично) | Реальные имплементации + 106 тестов (0 fail). Без TranslationCache/rus.ndjson — это M1.5. Полный Snowball — KI-007. |
+| M1.2 — Core: ItemNameParser, ItemNameTranslator, RussianStemmer, RuneshapeCombinationTranslator | ✅ (частично) | Реальные имплементации + 106 тестов (0 fail). `TranslationCache` + `rus.ndjson` — M1.5-partial (TranslationCache готов, NDJSON-данные — KI-017). Полный Snowball — KI-007. |
 | M1.3 — OCR-движки и пайплайн | ✅ (частично) | Реальные имплементации: `WindowsOcrEngine`, `TesseractEngine`, `ImagePreprocessor`, `LeaguePanelDetector`, `RussianOcrPostProcessor`, `OcrPipeline`. `OcrEngineResolver` без изменений. Не сделано: `OcrLeagueWindowReader`, `ResolutionProfiles`, MSBuild target `EnsureTessData`, тесты на реальные скриншоты. 23 новых теста для `RussianOcrPostProcessor`. |
 | M1.4 — Захват экрана | ✅ (частично) | `PrintWindowCapture` (real), `Poe2WindowLocator` (real), `Win32/NativeMethods.cs` (P/Invoke). `WgcCapture` отложен (KI-013). 25 новых тест-кейсов в `AldurPrice.Capture.Tests` (15 locator + 10 capture). |
-| M1.5 — Источники цен + TranslationCache/rus.ndjson | ⏳ | `Poe2ScoutClient`, `PoeNinjaClient`, загрузка `rus.ndjson` из Exiled Exchange 2 (4319 предметов). Без этого `ItemNameTranslator` покрывает только рунные комбинации. |
+| M1.5 — Источники цен + TranslationCache/rus.ndjson | 🔶 (частично) | `TranslationCache` — реальная имплементация (NDJSON-загрузка, exact-match lookup, `LoadEmbeddedOrDefault`). `ItemNameTranslator` — fallback [2] через cache. 28 новых тестов (`TranslationCacheTests` + `ItemNameTranslatorCacheFallbackTests`). **Не сделано:** `Poe2ScoutClient`, `PoeNinjaClient`, `PricingSourceRouter`, WireMock-тесты (нужны реальные API-response fixtures), `rus.ndjson` не bundled (KI-017). |
 | M1.6 — In-memory кэш цен | ⏳ | `ConcurrentDictionary`, TTL 15 мин, `LeaguePricingWorker`. |
 | M1.7 — Оверлей (минимальный) | ⏳ | click-through topmost WPF window. |
 | M1.8 — Dashboard (минимальный) | ⏳ | `MainWindow` с кнопкой «Запуск» и лог-панелью. |
 | M1.9 — Конфигурация | ⏳ | `SettingsController`, `Poe2ConfigFile`. |
 | M1.10 — Тесты на реальных скриншотах | ⏳ | 10+ PNG-фикстур с RU-клиента. |
 
-**Сборка:** `dotnet build AldurPrice.slnx` (Windows) или `dotnet build AldurPrice.slnx -p:EnableWindowsTargeting=true` (Linux, без run) — 0 errors, 0 warnings.
-**Тесты:** `dotnet test` — 165 total: 140 Core.Tests (кроссплатформенные) + 25 Capture.Tests (только Windows — P/Invoke `user32.dll`). На Linux 1 Capture-тест падает на `IsWindow` (ожидаемо); на Windows ожидается 165/165 passed.
+**Сборка:** `dotnet build AldurPrice.slnx` (Windows) или `dotnet build AldurPrice.slnx -p:EnableWindowsTargeting=true` (Linux, без run) — 0 errors, 0 warnings. (18 warnings из M1.4-fix починены: 16× CA1873 подавлены в `Directory.Build.props` — последовательно с CA1848, оба про LoggerMessage source-gen, M3.7 работа; CA1305 + CA1861 — точечные фиксы.)
+**Тесты:** `dotnet test` — ~193 total: 168 Core.Tests (140 ранее + 28 новых M1.5-partial) + 25 Capture.Tests (только Windows — P/Invoke `user32.dll`). На Linux 1 Capture-тест падает на `IsWindow` (ожидаемо); на Windows ожидается ~193/193 passed. **Не верифицировано на Windows** — счёт 193 ожидаемый, нужна проверка `dotnet test`.
 
 ## Что в работе
 
-- **Сборка + unit-тесты верифицированы на Linux** (с `-p:EnableWindowsTargeting=true`): 0 errors, 0 warnings, 164/165 тестов green (1 Linux-only ожидаемый fail — P/Invoke `user32.dll`). На Windows нужна финальная проверка 165/165 и runtime-смоук.
+- **M1.5-partial (текущая итерация):** `TranslationCache` — реальная имплементация (NDJSON-загрузка из Exiled Exchange 2, exact-match lookup, `LoadEmbeddedOrDefault` для embedded `rus.ndjson`). `ItemNameTranslator` — fallback [2] через cache. 28 новых тестов. 18 warnings из M1.4-fix починены (CA1873 подавлен, CA1305/CA1861 — точечные фиксы). **Код написан, но НЕ верифицирован сборкой** (dotnet SDK недоступен в среде разработки) — нужна Windows-проверка: `dotnet build` (0 errors / 0 warnings) + `dotnet test` (~193 passed).
 - **M0 релиз (pending)**: запустить `dotnet run --project src/AldurPrice` на Windows 10/11, проверить тёмное окно с «Hello AldurPrice», поставить тег `v0.1.0-alpha`.
-- **M1.4 Windows runtime-верификация (next)**:
-  1. На Windows: `dotnet build AldurPrice.slnx` — должно быть 0 errors (проверено на Linux с `EnableWindowsTargeting`).
-  2. `dotnet test` — все 165 тест-кейсов (140 Core.Tests + 25 Capture.Tests) должны быть green.
-  3. Запустить PoE2, проверить через debug-лог, что `Poe2WindowLocator.TryLocate()` находит окно (имя процесса может отличаться — см. KI-013).
-  4. (Опционально) Smoke-test: вызвать `PrintWindowCapture.CaptureAsync` с регионом `{0,0,800,600}` и сохранить PNG — проверить, что не чёрный прямоугольник.
+- **M1.4 Windows runtime-верификация (pending)**: запустить PoE2, проверить через debug-лог, что `Poe2WindowLocator.TryLocate()` находит окно (имя процесса может отличаться — см. KI-013). (Опционально) Smoke-test `PrintWindowCapture.CaptureAsync` с регионом `{0,0,800,600}` → PNG, проверить что не чёрный прямоугольник.
 
 ## Что дальше (M1 — MVP)
 
@@ -41,7 +37,14 @@
 2. ~~M1.2 — Core translators~~ ✅ (частично; полный Snowball — KI-007, TranslationCache + rus.ndjson — M1.5)
 3. ~~M1.3 — OCR-движки~~ ✅ (частично; оставшиеся компоненты — M1.10 / M2)
 4. ~~M1.4 — Захват экрана~~ ✅ (частично; `WgcCapture` fallback — KI-013, M1.4b / M2)
-5. M1.5 — Источники цен + переводы базовых предметов: `Poe2ScoutClient`, `PoeNinjaClient` через `IHttpClientFactory`, WireMock.Net-тесты. Загрузка `rus.ndjson` из Exiled Exchange 2 (4319 предметов), `TranslationCache`.
+5. M1.5 — Источники цен + переводы базовых предметов (🔶 частично):
+   - ✅ `TranslationCache` — реальная имплементация (NDJSON-загрузка, exact-match, `LoadEmbeddedOrDefault`).
+   - ✅ `ItemNameTranslator` — fallback [2] через cache. 28 новых тестов.
+   - ⏳ `Poe2ScoutClient`, `PoeNinjaClient` через `IHttpClientFactory` — нужны реальные API-response fixtures (web-research или browser dev-tools на poe2scout.com / poe.ninja).
+   - ⏳ `PricingSourceRouter` — маршрутизация между источниками.
+   - ⏳ WireMock.Net-тесты для клиентов.
+   - ⏳ Запуск `scripts/update-translations.py` для загрузки `rus.ndjson` (4319 предметов) → rebuild → embed в `AldurPrice.Core`. См. KI-017.
+   - ⏳ `translations.json` — fallback для валюты (M1.5+, не реализовано).
 6. M1.6 — In-memory кэш цен: `ConcurrentDictionary`-based, TTL 15 мин, `LeaguePricingWorker` (`BackgroundService`).
 7. M1.7 — Оверлей (минимальный): click-through topmost WPF window через `WS_EX_TRANSPARENT`, `PriceRowLayout`, `PriceColorCalculator`.
 8. M1.8 — Dashboard (минимальный): `MainWindow` с кнопкой «Запуск» и лог-панелью.
@@ -90,13 +93,13 @@
 
 Все 3 теста теперь green. На Windows 165/165, на Linux 164/165 (Capture-тест с P/Invoke `user32.dll` ожидаемо падает — см. KI-003).
 
-### KI-001: Подавлены анализаторы CA1822, CS1591, CA1848, CA1805
+### KI-001: Подавлены анализаторы CA1822, CS1591, CA1848, CA1873, CA1805
 
-**Симптом:** `Directory.Build.props` содержит `<NoWarn>$(NoWarn);CA1822;CS1591;CA1848;CA1805</NoWarn>`.
+**Симптом:** `Directory.Build.props` содержит `<NoWarn>$(NoWarn);CA1822;CS1591;CA1848;CA1873;CA1805</NoWarn>`.
 
-**Причина:** `CS1591` (XML-документация на все public-члены) ещё не везде добавлена. `CA1848` (LoggerMessage source generator) — это M3.7 работа. `CA1805` (явная инициализация `bool = false`) намеренна в Options-классах. `CA1822` (could-be-static) остаётся, потому что часть Core-стабов ещё не использует instance state: `TierFallback.TryBaseKey`, `FallbackProvider.TryFuzzyMatch`, `TranslationCache.Store/TryLookup/Clear`, `IdAliases`.
+**Причина:** `CS1591` (XML-документация на все public-члены) ещё не везде добавлена. `CA1848` (LoggerMessage source generator) + `CA1873` (logger argument may be expensive) — оба про high-performance logging, это M3.7 работа (Serilog structured logging + LoggerMessage source gen). Индивидуальные `IsEnabled`-guards сейчас были бы noise, который M3.7 всё равно уберёт. `CA1805` (явная инициализация `bool = false`) намеренна в Options-классах. `CA1822` (could-be-static) остаётся, потому что часть Core-стабов ещё не использует instance state: `TierFallback.TryBaseKey`, `FallbackProvider.TryFuzzyMatch`, `IdAliases`. (`TranslationCache` реализован в M1.5-partial — больше не стаб, но `Store/TryLookup/Clear` используют instance state `_map`, так что CA1822 на них не срабатывал бы.)
 
-**План:** Убрать `CA1822` из NoWarn когда все Core-стабы будут заменены (M1.5+ — `TranslationCache` с rus.ndjson, `TierFallback` с GREATER/PERFECT strip, `FallbackProvider` с Levenshtein+diacritics). `CS1591` — после прохождения по всем public API. `CA1848` — после M3.7. `CA1805` — оставить или убрать при переходе на source-gen Options.
+**План:** Убрать `CA1822` из NoWarn когда все Core-стабы заменены (`TierFallback` с GREATER/PERFECT strip, `FallbackProvider` с Levenshtein+diacritics). `CS1591` — после прохождения по всем public API. `CA1848` + `CA1873` — после M3.7. `CA1805` — оставить или убрать при переходе на source-gen Options.
 
 ### KI-002: .slnx формат не верифицирован на Windows
 
@@ -200,6 +203,26 @@ Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata_best/raw/main/
 **Workaround для LS-пользователей:** Lossless Scaling растягивает окно PoE2. `PrintWindow` должен работать (он рендерит окно, а не экран), но если LS использует exclusive fullscreen — capture будет чёрным. В этом случае нужно либо переключить LS в windowed mode, либо дождаться `WgcCapture`.
 
 **План:** Реализовать `WgcCapture` в M1.4b (отдельная итерация после Windows-верификации M1.4 primary path) или в M2. Верифицировать имена процессов при первой Windows-проверке. См. `docs/05-ROADMAP.md` → M1.4.
+
+### KI-017: `rus.ndjson` не bundled — `TranslationCache` пустой до загрузки
+
+**Симптом:** `TranslationCache.LoadEmbeddedOrDefault()` возвращает пустой кэш (Count=0), потому что embedded-ресурс `AldurPrice.Core.Translation.rus.ndjson` отсутствует. Fallback [2] в `ItemNameTranslator` всегда промахивается — переводятся только рунные комбинации (fallback [1], ~150 предметов).
+
+**Причина:** Файл `ocr/translations/rus.ndjson` (4 319 строк, ~2 МБ) не committen в репозиторий. Решение сознательное:
+- **Размер:** ~2 МБ на язык, ~16 МБ для всех 8 языков.
+- **Лицензия:** нужно проверить лицензию Exiled Exchange 2 перед релизом и добавить копию в `ocr/translations/LICENSE` + атрибуцию.
+- **Частота обновления:** еженедельно через CI (`.github/workflows/translations.yml`).
+
+`AldurPrice.Core.csproj` содержит `<EmbeddedResource Include="..\..\ocr\translations\rus.ndjson" Condition="Exists(...)">` — build succeeds и без файла (ресурс опускается). Когда файл появляется (после `update-translations.py`) — автоматически embed'ится при следующем `dotnet build`.
+
+**Workaround:** Загрузить NDJSON и rebuild:
+```bash
+python scripts/update-translations.py   # клонирует Exiled Exchange 2, копирует *.ndjson в ocr/translations/
+dotnet build AldurPrice.slnx             # теперь rus.ndjson embedded
+dotnet test                              # TranslationCache.LoadEmbeddedOrDefault вернёт 4319 записей
+```
+
+**План:** После проверки лицензии Exiled Exchange 2 — committen `rus.ndjson` + `LICENSE` в репозиторий (или оставить загрузку через CI/скрипт). См. `docs/07-TRANSLATION-SOURCES.md` §1, `ocr/translations/README.md`.
 
 ## Architecture deviations
 

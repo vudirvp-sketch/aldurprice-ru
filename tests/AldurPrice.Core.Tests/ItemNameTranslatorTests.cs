@@ -11,7 +11,11 @@ namespace AldurPrice.Core.Tests;
 /// </summary>
 public sealed class ItemNameTranslatorTests
 {
-    private readonly ItemNameTranslator _translator = new();
+    // cache:null — изолирует тесты от TranslationCache (rus.ndjson может быть bundled
+    // или нет, KI-017). Эти тесты проверяют ТОЛЬКО fallback [1] (runeshape).
+    // Поведение с cache тестируется в ItemNameTranslatorCacheFallbackTests.
+    private readonly ItemNameTranslator _translator =
+        new(new RuneshapeCombinationTranslator(), cache: null);
 
     // ---- Eng client: имя возвращается как есть ----
 
@@ -129,7 +133,9 @@ public sealed class ItemNameTranslatorTests
 /// </summary>
 public sealed class RussianOcrDistortionTests
 {
-    private readonly ItemNameTranslator _translator = new();
+    // cache:null — см. комментарий в ItemNameTranslatorTests (изоляция от rus.ndjson bundling).
+    private readonly ItemNameTranslator _translator =
+        new(new RuneshapeCombinationTranslator(), cache: null);
 
     [Theory]
     [InlineData("Руна агня",       "Fire Rune", 1)]       // о→а, 1 edit

@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using AldurPrice.Capture.Win32;
 using Microsoft.Extensions.Logging;
 
@@ -196,5 +197,6 @@ public sealed class PrintWindowCapture : ICaptureStrategy
     }
 
     private static string GetLastWin32Error() =>
-        System.Runtime.InteropServices.Marshal.GetLastWin32Error().ToString();
+        System.Runtime.InteropServices.Marshal.GetLastWin32Error()
+            .ToString(CultureInfo.InvariantCulture);
 }

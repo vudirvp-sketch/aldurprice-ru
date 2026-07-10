@@ -106,27 +106,26 @@
     → если не stem: Levenshtein distance ≤ 2
     → найдено: "Fire Rune" ✅ RETURN
   ↓ (если не найдено)
-[2] TranslationCache.ToEnglish("Руна огня")
-    → кэш из .dat файла (быстрее всего)
-    → если загружен и найдено: RETURN
-  ↓ (если не найдено)
-[3] rus.ndjson lookup (через TranslationCache)
-    → 4319 базовых предметов из Exiled Exchange 2
+[2] TranslationCache.TryLookup("Руна огня")
+    → exact match (OrdinalIgnoreCase) в ConcurrentDictionary
+    → populated из embedded rus.ndjson (4 319 базовых предметов Exiled Exchange 2)
+       через LoadEmbeddedOrDefault() при startup
+    → если rus.ndjson не bundled (KI-017) — кэш пустой, fallback промахивается
     → если найдено: RETURN
   ↓ (если не найдено)
-[4] Bundled translations.json: "Руна огня##rus"
+[3] Bundled translations.json: "Руна огня##rus"
     → fallback для валюты (100 предметов)
-    → если найдено: RETURN
+    → M1.5+, не реализовано в этой итерации
   ↓ (если не найдено)
-[5] RussianStemmer + Levenshtein на всём словаре рунных комбинаций
-    → уже выполнено в [1] (fallback внутри RuneshapeCombinationTranslator)
-    → для общих предметов нужен кандидат-сет (rus.ndjson) — M1.5+
-  ↓ (если не найдено)
-[6] Return null
+[4] Return null
     → цен не будет, в логе warning
 ```
 
-**Текущее покрытие (M1.2):** только `[1]` — рунные комбинации (~150 предметов). `[2]`-`[4]` появятся в M1.5 вместе с rus.ndjson из Exiled Exchange 2.
+**Текущее покрытие (M1.5-partial):**
+- `[1]` — рунные комбинации (~150 предметов) ✅
+- `[2]` — базовые предметы из `rus.ndjson` (4 319) ✅ (после запуска `scripts/update-translations.py` — см. KI-017)
+- `[3]` — translations.json (валюта) ⏳ не реализовано
+- Stem/Levenshtein для базовых предметов — M1.10 (после калибровки на реальных скриншотах)
 
 ### 3.2. RuneshapeCombinationTranslator
 
