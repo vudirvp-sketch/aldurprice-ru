@@ -78,16 +78,20 @@ public partial class App : Application
             services.AddSingleton<Core.Translation.RussianStemmer>();
             services.AddSingleton<Core.Translation.TranslationCache>();
             services.AddSingleton<Core.Translation.RuneshapeCombinationTranslator>();
+            services.AddSingleton<Core.Translation.RussianOcrPostProcessor>();
             services.AddSingleton<Core.Contracts.IItemNameTranslator, Core.Translation.ItemNameTranslator>();
 
             // === Data (persistence) ===
             // M3.4: services.AddSingleton<Core.Contracts.IPricingCache, Data.SqlitePricingCache>();
 
-            // === OCR ===
+            // === OCR (M1.3) ===
             services.AddSingleton<Ocr.WindowsOcrEngine>();
             services.AddSingleton<Ocr.TesseractEngine>();
             services.AddSingleton<Ocr.OcrEngineResolver>();
-            // M1.3: services.AddSingleton<Ocr.IOcrEngine>(sp => sp.GetRequiredService<Ocr.OcrEngineResolver>().Resolve());
+            services.AddSingleton<Ocr.ImagePreprocessor>();
+            services.AddSingleton<Ocr.LeaguePanelDetector>();
+            services.AddSingleton<Ocr.OcrPipeline>();
+            // M1.4: services.AddSingleton<Ocr.IOcrEngine>(sp => sp.GetRequiredService<Ocr.OcrEngineResolver>().Resolve());
 
             // === Capture ===
             services.AddSingleton<Capture.PrintWindowCapture>();

@@ -79,42 +79,42 @@
 ### Задачи
 
 #### M1.1 — Парсер poe2db.tw
-- [ ] `scripts/parse-poe2db-runeshapes.py` — Python-скрипт парсинга
+- [x] `scripts/parse-poe2db-runeshapes.py` — Python-скрипт парсинга
   - Скачать `https://poe2db.tw/ru/Runeshape_Combinations`
   - Извлечь все рунные комбинации (English + Russian)
   - Сохранить в `ocr/runeshape-combinations-ru.json`
   - CLI: `--output`, `--verbose`, `--dry-run`
-- [ ] Тест парсера на сохранённой HTML-фикстуре
-- [ ] Запустить парсер, закоммитить первый `runeshape-combinations-ru.json`
-- [ ] Оценка: 8 часов
+- [ ] Тест парсера на сохранённой HTML-фикстуре — отложено в M1.10
+- [x] Запустить парсер, закоммитить первый `runeshape-combinations-ru.json` (153 записи)
+- [x] Оценка: 8 часов
 
 #### M1.2 — Core: ItemNameParser и ItemNameTranslator
-- [ ] `Core/Pricing/ItemNameParser.cs` — парсинг "1x", "шт", trailing-числа, OCR-искажений
-- [ ] `Core/Pricing/Levenshtein.cs` — алгоритм distance с early exit
-- [ ] `Core/Pricing/FallbackProvider.cs` — fuzzy matching, диакритики
-- [ ] `Core/Pricing/TierFallback.cs` — GREATER/PERFECT fallback
-- [ ] `Core/Pricing/IdAliases.cs` — gcp, bauble, и т.д.
-- [ ] `Core/Translation/RuneshapeCombinationTranslator.cs` — загрузка JSON, lookup, stem, Levenshtein
-- [ ] `Core/Translation/RussianStemmer.cs` — портированный Snowball stemmer
-- [ ] `Core/Translation/ItemNameTranslator.cs` — цепочка fallback'ов
-- [ ] `Core/Translation/TranslationCache.cs` — in-memory LRU
-- [ ] Тесты: `ItemNameParserTests`, `RuneshapeCombinationTranslatorTests`, `RussianStemmerTests`, `LevenshteinTests`, `RussianOcrDistortionTests`
-- [ ] Оценка: 16 часов
+- [x] `Core/Pricing/ItemNameParser.cs` — парсинг "1x", "шт", trailing-числа, OCR-искажений
+- [x] `Core/Pricing/Levenshtein.cs` — алгоритм distance с early exit
+- [x] `Core/Pricing/FallbackProvider.cs` — fuzzy matching, диакритики
+- [x] `Core/Pricing/TierFallback.cs` — GREATER/PERFECT fallback
+- [x] `Core/Pricing/IdAliases.cs` — gcp, bauble, и т.д.
+- [x] `Core/Translation/RuneshapeCombinationTranslator.cs` — загрузка embedded JSON, lookup, stem, Levenshtein
+- [x] `Core/Translation/RussianStemmer.cs` — консервативный stemmer (НЕ полный Snowball — KI-007)
+- [x] `Core/Translation/ItemNameTranslator.cs` — цепочка fallback'ов
+- [x] `Core/Translation/TranslationCache.cs` — stub (полная реализация в M1.5)
+- [x] Тесты: `ItemNameParserTests`, `RuneshapeCombinationTranslatorTests`, `RussianStemmerTests`, `LevenshteinTests`, `RussianOcrDistortionTests`
+- [x] Оценка: 16 часов
 
 #### M1.3 — OCR-движки и пайплайн
-- [ ] `Ocr/IOcrEngine.cs` — интерфейс
-- [ ] `Ocr/WindowsOcrEngine.cs` — обёртка над `Windows.Media.Ocr`
-- [ ] `Ocr/TesseractEngine.cs` — обёртка над Tesseract 5.2
-- [ ] `Ocr/OcrEngineResolver.cs` — выбор доступного движка
-- [ ] `OCR/ImagePreprocessor.cs` — бинаризация + color filter RGB(50,42,34) tol 47
-- [ ] `OCR/LeaguePanelDetector.cs` — детектор открытой панели по яркости
-- [ ] `OCR/OcrTextPostProcessor.cs` — нормализация текста
-- [ ] `OCR/RussianOcrPostProcessor.cs` — нормализация Ё, апострофов, слияние строк
-- [ ] `OCR/OcrPipeline.cs` — оркестрация capture → preprocess → OCR → postprocess
-- [ ] `OCR/OcrLeagueWindowReader.cs` — главный цикл чтения
-- [ ] `OCR/ResolutionProfiles.cs` — профили под разрешение
-- [ ] Тесты: `ImagePreprocessorTests`, `LeaguePanelDetectorTests`, `OcrTextPostProcessorTests`, `RussianOcrPostProcessorTests`
-- [ ] Оценка: 20 часов
+- [x] `Ocr/IOcrEngine.cs` — интерфейс (был с M0)
+- [x] `Ocr/WindowsOcrEngine.cs` — реальная обёртка над `Windows.Media.Ocr`
+- [x] `Ocr/TesseractEngine.cs` — реальная обёртка над Tesseract 5.2 (ленивая инициализация, потокобезопасная)
+- [x] `Ocr/OcrEngineResolver.cs` — без изменений (логика корректна с M0)
+- [x] `Ocr/ImagePreprocessor.cs` — бинаризация + color filter RGB(50,42,34) tol 47 (LockBits + unsafe)
+- [x] `Ocr/LeaguePanelDetector.cs` — детектор открытой панели (упрощённая RGB-эвристика — KI-011, HSV в M1.10)
+- [ ] `Ocr/OcrTextPostProcessor.cs` — language-agnostic версия, отложено (RussianOcrPostProcessor покрывает базу)
+- [x] `Core/Translation/RussianOcrPostProcessor.cs` — нормализация Ё, апострофов, кавычек, буллетов (в Core для тестируемости — AD-004)
+- [x] `Ocr/OcrPipeline.cs` — оркестрация panel-detect → preprocess → OCR → postprocess
+- [ ] `Ocr/OcrLeagueWindowReader.cs` — главный цикл чтения, отложено в M1.10
+- [ ] `Ocr/ResolutionProfiles.cs` — профили под разрешение, отложено в M1.10
+- [x] Тесты: `RussianOcrPostProcessorTests` (23 теста). Остальные OCR-тесты — M1.10 (нужны net9.0-windows test project + mock bitmaps)
+- [x] Оценка: 20 часов (потрачено ~18)
 
 #### M1.4 — Захват экрана
 - [ ] `Capture/ICaptureStrategy.cs` — интерфейс

@@ -25,6 +25,7 @@
 
     <!-- OCR -->
     <PackageVersion Include="Tesseract" Version="5.2.0" />
+    <PackageVersion Include="System.Drawing.Common" Version="9.0.0" />
 
     <!-- System -->
     <PackageVersion Include="System.Management" Version="9.0.0" />

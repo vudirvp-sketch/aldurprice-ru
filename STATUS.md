@@ -11,37 +11,41 @@
 |---|---|---|
 | M1.1 — Парсер poe2db.tw | ✅ | Переписан под реальную HTML-структуру poe2db. `ocr/runeshape-combinations-ru.json`: 153 записи (alloy 13, ancient 13, basic 82, lineage 21, master 1, special 3, ward 20). |
 | M1.2 — Core: ItemNameParser, ItemNameTranslator, RussianStemmer, RuneshapeCombinationTranslator | ✅ (частично) | Реальные имплементации + 106 тестов (0 fail). Без TranslationCache/rus.ndjson — это M1.5. Полный Snowball — KI-007. |
-| M1.3 — OCR-движки | ⏳ | WindowsOcrEngine, TesseractEngine, OcrPipeline, ImagePreprocessor, LeaguePanelDetector, RussianOcrPostProcessor. |
-| M1.4 — Захват экрана | ⏳ | PrintWindowCapture, Poe2WindowLocator. |
-| M1.5 — Источники цен + TranslationCache/rus.ndjson | ⏳ | Poe2ScoutClient, PoeNinjaClient, загрузка rus.ndjson из Exiled Exchange 2 (4319 предметов). Без этого ItemNameTranslator покрывает только рунные комбинации. |
-| M1.6 — In-memory кэш цен | ⏳ | ConcurrentDictionary, TTL 15 мин, LeaguePricingWorker. |
+| M1.3 — OCR-движки и пайплайн | ✅ (частично) | Реальные имплементации: `WindowsOcrEngine`, `TesseractEngine`, `ImagePreprocessor`, `LeaguePanelDetector`, `RussianOcrPostProcessor`, `OcrPipeline`. `OcrEngineResolver` без изменений. Не сделано: `OcrLeagueWindowReader`, `ResolutionProfiles`, MSBuild target `EnsureTessData`, тесты на реальные скриншоты. 23 новых теста для `RussianOcrPostProcessor`. |
+| M1.4 — Захват экрана | ⏳ | `PrintWindowCapture`, `Poe2WindowLocator`. |
+| M1.5 — Источники цен + TranslationCache/rus.ndjson | ⏳ | `Poe2ScoutClient`, `PoeNinjaClient`, загрузка `rus.ndjson` из Exiled Exchange 2 (4319 предметов). Без этого `ItemNameTranslator` покрывает только рунные комбинации. |
+| M1.6 — In-memory кэш цен | ⏳ | `ConcurrentDictionary`, TTL 15 мин, `LeaguePricingWorker`. |
 | M1.7 — Оверлей (минимальный) | ⏳ | click-through topmost WPF window. |
-| M1.8 — Dashboard (минимальный) | ⏳ | MainWindow с кнопкой «Запуск» и лог-панелью. |
-| M1.9 — Конфигурация | ⏳ | SettingsController, Poe2ConfigFile. |
+| M1.8 — Dashboard (минимальный) | ⏳ | `MainWindow` с кнопкой «Запуск» и лог-панелью. |
+| M1.9 — Конфигурация | ⏳ | `SettingsController`, `Poe2ConfigFile`. |
 | M1.10 — Тесты на реальных скриншотах | ⏳ | 10+ PNG-фикстур с RU-клиента. |
 
-**Сборка:** `dotnet build AldurPrice.slnx -p:EnableWindowsTargeting=true` — 0 warnings, 0 errors.
-**Тесты:** `dotnet test tests/AldurPrice.Core.Tests` — 106 passed, 0 failed.
+**Сборка:** `dotnet build AldurPrice.slnx -p:EnableWindowsTargeting=true` — 0 errors (warnings только CS1591 на недокументированных public API).
+**Тесты:** `dotnet test tests/AldurPrice.Core.Tests` — 129 passed (106 + 23 новых), 0 failed.
 
 ## Что в работе
 
-- **M0 релиз**: запустить `dotnet run --project src/AldurPrice` на Windows 10/11, проверить тёмное окно с «Hello AldurPrice», поставить тег `v0.1.0-alpha`.
-- **M1.3 (next)**: OCR-движки. Зависимости: `WindowsOcrEngine` (Windows.Media.Ocr, UWP API из net9.0-windows), `TesseractEngine` (Tesseract 5.2 + native DLL bootstrapper), `OcrPipeline` (windows-first → tesseract fallback), `ImagePreprocessor` (greyscale, contrast), `LeaguePanelDetector` (HSV-segmentation для панели рунешейпов), `RussianOcrPostProcessor` (исправление типовых OCR-искажений кириллицы).
+- **M0 релиз (pending)**: запустить `dotnet run --project src/AldurPrice` на Windows 10/11, проверить тёмное окно с «Hello AldurPrice», поставить тег `v0.1.0-alpha`.
+- **M1.3 Windows-верификация (next)**: 
+  1. На Windows: `dotnet build AldurPrice.slnx -p:EnableWindowsTargeting=true` — проверить, что компилируется без ошибок (особенно `WindowsOcrEngine` с WinRT API).
+  2. `dotnet test tests/AldurPrice.Core.Tests` — 129 тестов должны быть green.
+  3. Скачать `eng.traineddata` + `rus.traineddata` в `ocr/tesseract/` (см. KI-009) — без них Tesseract fallback недоступен.
+  4. (Опционально) Написать минимальный smoke-test на `OcrPipeline.ProcessAsync` с реальным PNG-фикстурой — это фактически M1.10.
 
 ## Что дальше (M1 — MVP)
 
 Рекомендуемый порядок задач (по зависимости):
 
 1. ~~M1.1 — Парсер poe2db.tw~~ ✅
-2. ~~M1.2 — Core: ItemNameParser, ItemNameTranslator, RussianStemmer, RuneshapeCombinationTranslator~~ ✅ (частично; полный Snowball — KI-007, TranslationCache + rus.ndjson — M1.5)
-3. **M1.3 — OCR-движки**: `WindowsOcrEngine` через `Windows.Media.Ocr`, `TesseractEngine` через Tesseract 5.2 + native DLL bootstrapper. `OcrPipeline`, `ImagePreprocessor`, `LeaguePanelDetector`, `RussianOcrPostProcessor`.
+2. ~~M1.2 — Core translators~~ ✅ (частично; полный Snowball — KI-007, TranslationCache + rus.ndjson — M1.5)
+3. ~~M1.3 — OCR-движки~~ ✅ (частично; оставшиеся компоненты — M1.10 / M2)
 4. M1.4 — Захват экрана: `PrintWindowCapture` через P/Invoke `user32!PrintWindow`, `Poe2WindowLocator`.
-5. M1.5 — Источники цен + переводы базовых предметов: `Poe2ScoutClient`, `PoeNinjaClient` через `IHttpClientFactory`, WireMock.Net-тесты. Загрузка `rus.ndjson` из Exiled Exchange 2 (4319 предметов), `TranslationCache` (.dat или JSON).
+5. M1.5 — Источники цен + переводы базовых предметов: `Poe2ScoutClient`, `PoeNinjaClient` через `IHttpClientFactory`, WireMock.Net-тесты. Загрузка `rus.ndjson` из Exiled Exchange 2 (4319 предметов), `TranslationCache`.
 6. M1.6 — In-memory кэш цен: `ConcurrentDictionary`-based, TTL 15 мин, `LeaguePricingWorker` (`BackgroundService`).
 7. M1.7 — Оверлей (минимальный): click-through topmost WPF window через `WS_EX_TRANSPARENT`, `PriceRowLayout`, `PriceColorCalculator`.
 8. M1.8 — Dashboard (минимальный): `MainWindow` с кнопкой «Запуск» и лог-панелью.
-9. M1.9 — Конфигурация: `SettingsController` (чтение/запись `appsettings.json`), `Poe2ConfigFile` (автоопредел языка клиента), валидаторы.
-10. M1.10 — Тесты на реальных скриншотах: собрать 10+ PNG-фикстур панели рунешейпов с RU-клиента.
+9. M1.9 — Конфигурация: `SettingsController`, `Poe2ConfigFile`, валидаторы.
+10. M1.10 — Тесты на реальных скриншотах + оставшиеся компоненты OCR (`OcrLeagueWindowReader`, `ResolutionProfiles`, MSBuild target `EnsureTessData`).
 
 ## Known Issues
 
@@ -49,9 +53,9 @@
 
 **Симптом:** `Directory.Build.props` содержит `<NoWarn>$(NoWarn);CA1822;CS1591;CA1848;CA1805</NoWarn>`.
 
-**Причина:** `CS1591` (XML-документация на все public-члены) ещё не везде добавлена. `CA1848` (LoggerMessage source generator) — это M3.7 работа. `CA1805` (явная инициализация `bool = false`) намеренна в Options-классах. `CA1822` больше НЕ релевантна после M1.2 (стабы заменены на реальные имплементации, использующие instance state).
+**Причина:** `CS1591` (XML-документация на все public-члены) ещё не везде добавлена. `CA1848` (LoggerMessage source generator) — это M3.7 работа. `CA1805` (явная инициализация `bool = false`) намеренна в Options-классах. `CA1822` (could-be-static) остаётся, потому что часть Core-стабов ещё не использует instance state: `TierFallback.TryBaseKey`, `FallbackProvider.TryFuzzyMatch`, `TranslationCache.Store/TryLookup/Clear`, `IdAliases`.
 
-**План:** Убрать `CA1822` из NoWarn в следующей итерации (M1.3). `CS1591` — после прохождения по всем public API. `CA1848` — после M3.7. `CA1805` — оставить или убрать при переходе на source-gen Options.
+**План:** Убрать `CA1822` из NoWarn когда все Core-стабы будут заменены (M1.5+ — `TranslationCache` с rus.ndjson, `TierFallback` с GREATER/PERFECT strip, `FallbackProvider` с Levenshtein+diacritics). `CS1591` — после прохождения по всем public API. `CA1848` — после M3.7. `CA1805` — оставить или убрать при переходе на source-gen Options.
 
 ### KI-002: .slnx формат не верифицирован на Windows
 
@@ -65,7 +69,7 @@
 
 **Симптом:** `dotnet build src/AldurPrice` на Linux падает с `NETSDK1100`.
 
-**Причина:** Дизайн-решение. WPF требует Windows. `AldurPrice.Core` и `AldurPrice.Data` — `net9.0` (cross-platform), `AldurPrice.Ocr`, `AldurPrice.Capture`, `AldurPrice` — `net9.0-windows`.
+**Причина:** Дизайн-решение. WPF требует Windows. `AldurPrice.Core` — `net9.0` (cross-platform), `AldurPrice.Data` — `net9.0`, `AldurPrice.Ocr` — `net9.0-windows10.0.19041.0` (WinRT для Windows.Media.Ocr), `AldurPrice.Capture`, `AldurPrice` — `net9.0-windows`.
 
 **План:** Не баг. Для разработки Core-логики на Linux: `dotnet test tests/AldurPrice.Core.Tests`. Для полной сборки: `dotnet build AldurPrice.slnx -p:EnableWindowsTargeting=true`.
 
@@ -77,7 +81,7 @@
 
 ### KI-005: ~~`ItemNameTranslator` инициализирует `RussianStemmer`, но не использует~~ ✅ РЕШЕНО в M1.2
 
-Поле `_stemmer` теперь используется в `ItemNameTranslator` (через `RuneshapeCombinationTranslator`, который использует stemmer для stem-matching'а). Можно убрать suppress CA1806 если было.
+Поле `_stemmer` теперь используется в `ItemNameTranslator` (через `RuneshapeCombinationTranslator`, который использует stemmer для stem-matching'а).
 
 ### KI-006: `appsettings.json` copy strategy verification
 
@@ -97,42 +101,100 @@
 
 Для matching'а предметных имён важна **стабильность** stem'а (разные падежи → один stem), а не **агрессивность** (минимальная длина stem'а).
 
-**План:** Рассмотреть порт полного Snowball с RV-регионами, но с дополнительным правилом: не снимать глагольные окончания для слов, где R1 пуст (т.е. нет гласной после первой гласной). Это компромисс между стабильностью и точностью. Отдельная итерация, низкий приоритет — текущий stemmer покрывает все кейсы M1.2 тестов.
+**План:** Рассмотреть портал полного Snowball с RV-регионами, но с дополнительным правилом: не снимать глагольные окончания для слов, где R1 пуст. Отдельная итерация, низкий приоритет — текущий stemmer покрывает все кейсы M1.2 тестов.
 
 ### KI-008: poe2db.tw «Bait Rune» без русского перевода
 
 **Симптом:** В `ocr/runeshape-combinations-ru.json` одна запись с `ru == en == "Bait Rune"`. poe2db.tw не имеет русского перевода для этого предмета.
 
-**План:** Не баг парсера — данные на стороне poe2db. При обновлении JSON (через `scripts/parse-poe2db-runeshapes.py`) проверить, не появился ли перевод. Если не появился — оставить как есть (translator вернёт `null` для этого предмета при RU-входе).
+**План:** Не баг парсера — данные на стороне poe2db. При обновлении JSON проверить, не появился ли перевод. Если не появился — оставить как есть (translator вернёт `null` для этого предмета при RU-входе).
+
+### KI-009: Tesseract traineddata не bundled, нет MSBuild target `EnsureTessData`
+
+**Симптом:** `TesseractEngine.IsAvailable` возвращает `false`, если в `ocr/tesseract/` нет `.traineddata` файлов. MSBuild target `EnsureTessData` (упомянутый в `docs/06-SETUP.md` §2.3) НЕ реализован.
+
+**Причина:** Реализация MSBuild target с HTTP-скачиванием ~85 МБ traineddata добавила бы риск ломать build на машинах без интернета или на Linux (PowerShell-вызовы из MSBuild ненадёжны). Для M1.3 достаточно: пользователь скачивает traineddata вручную при первой настройке Tesseract.
+
+**Workaround:** До реализации MSBuild target — вручную скачать:
+```powershell
+mkdir ocr/tesseract -Force
+Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata_best/raw/main/eng.traineddata" -OutFile "ocr/tesseract/eng.traineddata"
+Invoke-WebRequest -Uri "https://github.com/tesseract-ocr/tessdata_best/raw/main/rus.traineddata" -OutFile "ocr/tesseract/rus.traineddata"
+```
+
+**План:** Реализовать MSBuild target в M1.10 (или M3.5 — bundled traineddata с trim). Цель target: скачать при первом build, пропустить если уже есть, не падать при отсутствии интернета (warning + Tesseract fallback недоступен).
+
+### KI-010: TesseractEngine native DLL bootstrapper не реализован
+
+**Симптом:** `TesseractEngine` использует NuGet-пакет `Tesseract 5.2.0`, который включает native libs (`tesseract50.dll`, `leptonica-1.82.0.dll`) как content files. На некоторых конфигурациях (publish single-file, AOT) native DLL могут не подгрузиться.
+
+**Причина:** Tesseract 5.2.0 NuGet корректно копирует native DLL в output dir при стандартном `dotnet build`/`dotnet publish`. Проблемы возникают только в нестандартных сценариях (self-contained single-file, ReadyToRun). Для M1.3 стандартный сценарий работает.
+
+**План:** Реализовать `Startup/TesseractBootstrapper.cs` (распаковка native DLL из embedded resource в temp dir + `AssemblyLoadContext` configure) в M3.5 (релиз-готовность, single-file publish). См. `docs/02-ARCHITECTURE.md` §1 — `Startup/TesseractBootstrapper.cs`.
+
+### KI-011: LeaguePanelDetector — упрощённая эвристика (не HSV segmentation)
+
+**Симптом:** Текущий `LeaguePanelDetector` считает пиксели в RGB-диапазоне (20-70, 18-60, 15-55) с сэмплингом. Это работает, но даёт ложные срабатывания на тёмных сценах (пещера, ночь).
+
+**Причина:** Полная HSV-segmentation с детектированием формы панели требует больше кода и калибровки на реальных скриншотах (которых ещё нет — M1.10). Простая RGB-эвристика достаточна для gating'а: лучше лишний раз прогнать OCR, чем пропустить панель.
+
+**План:** Расширить до HSV-segmentation + детектирование aspect ratio панели в M1.10, когда будут реальные скриншоты-фикстуры.
+
+### KI-012: WindowsOcrEngine не проверяет минимальный build Windows (1809+)
+
+**Симптом:** `IsAvailable` лениво проверяет наличие OCR-языков через `OcrEngine.AvailableRecognizerLanguages`. На Windows < 10 1809 это может упасть с `TypeLoadException` или `COMException`, который ловится в try/catch (возвращает false).
+
+**Причина:** TFM `net9.0-windows10.0.19041.0` гарантирует, что на машине разработчика Win10 2004+, но не на машине пользователя. На user-side Windows < 1809 загрузка WinRT-типа упадёт, что обработано try/catch.
+
+**План:** Добавить явную проверку build number через `Environment.OSVersion.Version` (build ≥ 17763 = 1809) в `CheckAvailability()`. В M1.10 / M2.
 
 ## Architecture deviations
 
 В этом разделе фиксируются отличия реализации от архитектурного документа `docs/02-ARCHITECTURE.md`. Любое отличие должно быть либо согласовано с архитектурой (тогда документ обновляется), либо перечислено здесь с обоснованием.
 
-### AD-001: Shared-интерфейсы в `AldurPrice.Core/Contracts/`, а не в `AldurPrice/Contracts/`
+### AD-001: ✅ РЕШЕНО в M1.3 — Shared-интерфейсы в `AldurPrice.Core/Contracts/`
 
-**Документ говорит:** `docs/02-ARCHITECTURE.md` рисует `Contracts/` в основном проекте `AldurPrice/`.
+**Документ обновлён:** `docs/02-ARCHITECTURE.md` теперь корректно показывает `AldurPrice.Core/Contracts/` (раньше рисунок показывал `Contracts/` в основном проекте `AldurPrice/`).
 
-**Реализация:** Все shared-интерфейсы для DI перенесены в `AldurPrice.Core/Contracts/`. В `AldurPrice/Contracts/` (когда появится в M1.7) будут жить только UI-only интерфейсы (`ILeagueWindowReader`, `IOverlayRenderer`).
+**Реализация:** Все shared-интерфейсы для DI живут в `AldurPrice.Core/Contracts/`. В `AldurPrice/Contracts/` (когда появится в M1.7) будут жить только UI-only интерфейсы (`ILeagueWindowReader`, `IOverlayRenderer`).
 
 **Обоснование:** Иначе циклическая зависимость: `AldurPrice.Data` реализует `IPricingCache`, но если `IPricingCache` в `AldurPrice`, то `Data → AldurPrice`, а `AldurPrice → Data` для регистрации в DI — цикл. Перенос интерфейсов в Core решает это: `Data → Core`, `AldurPrice → Core + Data`.
 
-**План:** Обновить `docs/02-ARCHITECTURE.md` в следующей итерации (после проверки архитектуры на M1).
+### AD-002: ✅ РЕШЕНО в M1.3 — JSON как embedded resource
 
-### AD-002: `RuneshapeCombinationTranslator` грузит JSON как embedded resource, а не из filesystem
+**Документ обновлён:** `docs/04-RU-LOCALIZATION.md` §2.2 теперь описывает загрузку JSON через embedded resource (а не filesystem path).
 
-**Документ говорит:** `docs/04-RU-LOCALIZATION.md` описывает загрузку JSON из `ocr/runeshape-combinations-ru.json` (filesystem path).
-
-**Реализация:** JSON включён в `AldurPrice.Core.csproj` как `<EmbeddedResource>` с `LogicalName=AldurPrice.Core.Translation.runeshape-combinations-ru.json`. `RuneshapeCombinationTranslator` грузит его через `Assembly.GetManifestResourceStream`.
+**Реализация:** `ocr/runeshape-combinations-ru.json` включён в `AldurPrice.Core.csproj` как `<EmbeddedResource>` с `LogicalName=AldurPrice.Core.Translation.runeshape-combinations-ru.json`. `RuneshapeCombinationTranslator` грузит его через `Assembly.GetManifestResourceStream`.
 
 **Обоснование:** Embedded resource — самодостаточный, не требует файловых путей. Tests используют default-конструктор. Для обновления JSON — re-run парсера + rebuild (один commit). Для runtime override (если понадобится) — добавить stream-конструктор (уже есть для тестов).
 
-**План:** Обновить `docs/04-RU-LOCALIZATION.md` в следующей итерации.
+### AD-003: ✅ РЕШЕНО в M1.3 — OCR-пайплайн в `AldurPrice.Ocr/`, не в `AldurPrice/OCR/`
+
+**Документ обновлён:** `docs/02-ARCHITECTURE.md` §1 теперь показывает все OCR-компоненты (движки + пайплайн) в `AldurPrice.Ocr/`. Раньше doc разделял движки (`AldurPrice.Ocr/`) и пайплайн (`AldurPrice/OCR/`).
+
+**Реализация:** Все OCR-компоненты живут в `src/AldurPrice.Ocr/`:
+- `IOcrEngine.cs`, `OcrResult.cs`, `OcrLine.cs` — интерфейс и DTO
+- `WindowsOcrEngine.cs`, `TesseractEngine.cs`, `OcrEngineResolver.cs` — движки + выбор
+- `ImagePreprocessor.cs`, `LeaguePanelDetector.cs` — предобработка
+- `OcrPreprocessOptions.cs` — настройки предобработки (отдельная record, не `OcrOptions`)
+- `OcrPipeline.cs` — оркестратор
+
+**Обоснование:** Разделение на `AldurPrice.Ocr/` (движки) и `AldurPrice/OCR/` (пайплайн) создавало циклическую зависимость: пайплайн зависит от `OcrOptions` (в `AldurPrice/Configuration/`), но `AldurPrice → AldurPrice.Ocr → AldurPrice` — цикл. Решение: всё в `AldurPrice.Ocr/`, конфигурация предобработки в `OcrPreprocessOptions` (отдельная record), `App.xaml.cs` мапит `IOptions<OcrOptions>` → `OcrPreprocessOptions` при DI-регистрации.
+
+### AD-004: `RussianOcrPostProcessor` в `AldurPrice.Core/Translation/`, не в `AldurPrice/OCR/`
+
+**Документ говорит:** `docs/02-ARCHITECTURE.md` §1 рисует `RussianOcrPostProcessor.cs` в `AldurPrice/OCR/` (UI-dependent часть).
+
+**Реализация:** `RussianOcrPostProcessor` живёт в `src/AldurPrice.Core/Translation/RussianOcrPostProcessor.cs`.
+
+**Обоснование:** Это чистая текстовая обработка без Windows-зависимостей. Помещение в Core позволяет тестировать из `AldurPrice.Core.Tests` (net9.0, кроссплатформенный). Если бы лежал в `AldurPrice.Ocr/` (net9.0-windows10.0.19041.0), потребовался бы отдельный `AldurPrice.Ocr.Tests` проект на net9.0-windows — лишняя сложность для M1.3. Логически соседствует с `RussianStemmer` и `ItemNameParser`.
+
+**План:** Документ `docs/02-ARCHITECTURE.md` обновлён (см. §1) — `RussianOcrPostProcessor` перенесён в `AldurPrice.Core/Translation/`. Когда появится `OcrTextPostProcessor` (language-agnostic часть) — он тоже переедет в Core.
 
 ## Environment
 
-- **.NET SDK:** 9.0.300 (проверено на Linux x64)
-- **OS для dev:** Linux работает для `Core`/`Data`/`Core.Tests`; Windows нужен для `Ocr`/`Capture`/`AldurPrice` (WPF) и runtime-проверки
-- **Целевая платформа:** .NET 9, WPF, net9.0-windows
+- **.NET SDK:** 9.0.300 (проверено на Linux x64; на Windows нужна 9.0.x)
+- **OS для dev:** Linux работает для `Core`/`Core.Tests`; Windows нужен для `Ocr` (WinRT), `Capture`, `AldurPrice` (WPF) и runtime-проверки
+- **Целевая платформа:** .NET 9, WPF, net9.0-windows10.0.19041.0 (для AldurPrice.Ocr — WinRT API)
 - **Python:** 3.12 + `requests` + `lxml` (для `scripts/parse-poe2db-runeshapes.py`)
 - **Лицензия:** MIT

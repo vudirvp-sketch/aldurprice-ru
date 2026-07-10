@@ -135,46 +135,48 @@ namespace AldurPrice.Core.Translation;
 
 public sealed class RuneshapeCombinationTranslator
 {
-    private readonly Dictionary<string, string> _ruToEn;   // точный match
-    private readonly Dictionary<string, string> _stemToEn; // stem match
+    private const string EmbeddedResourceName =
+        "AldurPrice.Core.Translation.runeshape-combinations-ru.json";
+
+    private readonly Dictionary<string, string> _ruToEn;       // exact, OrdinalIgnoreCase
+    private readonly Dictionary<string, string> _stemKeyToEn;  // stem-of-ru → en
+    private readonly List<KeyValuePair<string, string>> _ruEntries; // for Levenshtein
     private readonly RussianStemmer _stemmer = new();
     private readonly Levenshtein _levenshtein = new(maxDistance: 2);
 
-    public RuneshapeCombinationTranslator(string jsonPath, ILogger<RuneshapeCombinationTranslator> logger)
+    /// <summary>Production-конструктор: грузит embedded JSON через Assembly.GetManifestResourceStream.</summary>
+    public RuneshapeCombinationTranslator()
     {
-        var json = File.ReadAllText(jsonPath);
-        var data = JsonSerializer.Deserialize<RuneshapeData>(json, JsonOptions.Default)!;
+        var asm = Assembly.GetExecutingAssembly();
+        using var stream = asm.GetManifestResourceStream(EmbeddedResourceName)
+            ?? throw new InvalidOperationException(
+                $"Embedded resource '{EmbeddedResourceName}' not found. " +
+                "Rebuild AldurPrice.Core to embed the JSON.");
+        LoadFromStream(stream);
+    }
 
-        _ruToEn = new(StringComparer.OrdinalIgnoreCase);
-        _stemToEn = new(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var c in data.Combinations)
-        {
-            _ruToEn[c.Ru] = c.En;
-            var stem = _stemmer.Stem(c.Ru);
-            if (!_stemToEn.ContainsKey(stem))
-                _stemToEn[stem] = c.En;
-        }
-
-        logger.LogInformation("Loaded {Count} runeshape combinations from {Path}",
-            _ruToEn.Count, jsonPath);
+    /// <summary>Test-конструктор: грузит JSON из произвольного stream (inline JSON в тестах).</summary>
+    public RuneshapeCombinationTranslator(Stream jsonStream)
+    {
+        ArgumentNullException.ThrowIfNull(jsonStream);
+        LoadFromStream(jsonStream);
     }
 
     public string? TryTranslate(string russianName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(russianName);
 
-        // 1. Точное совпадение
+        // 1. Exact match (OrdinalIgnoreCase)
         if (_ruToEn.TryGetValue(russianName, out var en))
             return en;
 
-        // 2. Stem matching (падежи)
-        var stem = _stemmer.Stem(russianName);
-        if (_stemToEn.TryGetValue(stem, out en))
+        // 2. Stem matching (по слову, через RussianStemmer) — ловит падежи
+        var stemKey = ComputeStemKey(russianName);
+        if (_stemKeyToEn.TryGetValue(stemKey, out en))
             return en;
 
-        // 3. Levenshtein ≤2 (OCR-искажения)
-        foreach (var (ru, enVal) in _ruToEn)
+        // 3. Levenshtein ≤2 (OCR-искажения кириллицы)
+        foreach (var (ru, enVal) in _ruEntries)
         {
             if (_levenshtein.Distance(russianName, ru) <= 2)
                 return enVal;
@@ -185,11 +187,22 @@ public sealed class RuneshapeCombinationTranslator
 }
 ```
 
+JSON загружается как **embedded resource** в `AldurPrice.Core.csproj` (см. AD-002 в STATUS.md):
+```xml
+<ItemGroup>
+  <EmbeddedResource Include="..\..\ocr\runeshape-combinations-ru.json">
+    <LogicalName>AldurPrice.Core.Translation.runeshape-combinations-ru.json</LogicalName>
+  </EmbeddedResource>
+</ItemGroup>
+```
+
+Это самодостаточно: не требует файловых путей, работает в single-file publish, тесты используют stream-конструктор с inline JSON.
+
 ### 3.3. RussianStemmer
 
-Портированный Snowball Russian stemmer (public domain). Нормализует окончания: «Руну» → «Рун», «Руна» → «Рун», «Руной» → «Рун». Не идеален (русский язык сложный), но покрывает ~80% падежей.
+Консервативный русский stemmer (НЕ полный Snowball). Нормализует окончания: «Руну» → «Рун», «Руна» → «Рун», «Руной» → «Рун». Намеренно не использует RV/R1/R2 регионы полного Snowball, чтобы не пере-стемить базовые слова предметных имён («руна» → «ру» вместо «рун» в полном Snowball). См. KI-007 в STATUS.md.
 
-Реализация: `AldurPrice.Core/Translation/RussianStemmer.cs`, ~150 строк, основан на [Snowball](https://snowballstem.org/algorithms/russian/stemmer.html). Тесты `RussianStemmerTests` покрывают 50+ слов в разных падежах.
+Реализация: `AldurPrice.Core/Translation/RussianStemmer.cs`, ~120 строк. Список окончаний отсортирован по убыванию длины, покрывает существительные (падежи, мн.ч.), прилагательные (полные и краткие, на -ский/-цкий), причастия, глаголы прош. времени, инфинитивы. Тесты `RussianStemmerTests` покрывают 13 кейсов во всех падежах.
 
 ## 4. Локализация UI через .resx
 

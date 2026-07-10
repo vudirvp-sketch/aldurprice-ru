@@ -1,16 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0-windows</TargetFramework>
+    <!-- net9.0-windows10.0.19041.0: нужен для прямого доступа к WinRT API
+         (Windows.Media.Ocr, Windows.Graphics.Imaging). На net9.0-windows
+         WinRT недоступен без Microsoft.Windows.SDK.Contracts. -->
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
     <RootNamespace>AldurPrice.Ocr</RootNamespace>
     <UseWindowsForms>false</UseWindowsForms>
     <UseWPF>false</UseWPF>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Description>OCR-движки AldurPrice: Windows.Media.Ocr (primary) + Tesseract 5 (fallback).</Description>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Tesseract" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="System.Drawing.Common" />
   </ItemGroup>
 
   <ItemGroup>

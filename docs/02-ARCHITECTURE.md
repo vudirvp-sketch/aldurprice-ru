@@ -13,52 +13,34 @@ AldurPrice/
 │   │   ├── App.xaml(.cs)                     # Точка входа WPF, DI-хост
 │   │   ├── Configuration/                    # Опции, SettingsController
 │   │   │   ├── AppOptions.cs                 # Глобальные настройки
-│   │   │   ├── OcrOptions.cs                 # Параметры OCR
+│   │   │   ├── OcrOptions.cs                 # Параметры OCR (из appsettings.json)
 │   │   │   ├── PricingOptions.cs             # Параметры цен
 │   │   │   ├── TranslationOptions.cs         # Параметры перевода
 │   │   │   ├── WindowOptions.cs              # Регион захвата
-│   │   │   ├── SettingsController.cs         # Чтение/запись appsettings.json
+│   │   │   ├── SettingsController.cs         # Чтение/запись appsettings.json (M1.9)
 │   │   │   └── Validators/                   # IValidateOptions<T>
-│   │   ├── Contracts/                        # Интерфейсы для DI
-│   │   │   ├── IPricingSource.cs             # poe2scout / poe.ninja
-│   │   │   ├── IPricingCache.cs              # Persistent кэш цен
-│   │   │   ├── ILeagueWindowReader.cs        # Захват окна игры + OCR
-│   │   │   ├── IOverlayRenderer.cs           # Отрисовка оверлея
-│   │   │   ├── IOcrEngine.cs                 # Windows OCR / Tesseract
-│   │   │   ├── ICaptureStrategy.cs           # PrintWindow / WGC
-│   │   │   ├── IItemNameTranslator.cs        # Перевод названий
-│   │   │   └── ISystemClock.cs               # Тестопригодное время
-│   │   ├── Capture/                          # Слой захвата экрана
+│   │   ├── Contracts/                        # UI-only интерфейсы (M1.7+)
+│   │   │   ├── ILeagueWindowReader.cs        # Захват окна игры + OCR (UI-dependent)
+│   │   │   └── IOverlayRenderer.cs           # Отрисовка оверлея
+│   │   ├── Capture/                          # Слой захвата экрана (M1.4)
 │   │   │   ├── PrintWindowCapture.cs         # Быстрый захват через Win32
 │   │   │   ├── WgcCapture.cs                 # Windows.Graphics.Capture
 │   │   │   ├── FrameDiffer.cs                # pHash skip unchanged
 │   │   │   ├── Poe2WindowMonitor.cs          # Foreground detection
 │   │   │   └── Poe2WindowLocator.cs          # Поиск окна PoE2
-│   │   ├── OCR/                              # OCR-пайплайн (UI-dependent)
-│   │   │   ├── OcrPipeline.cs                # Оркестрация
-│   │   │   ├── OcrLeagueWindowReader.cs      # Главный цикл
-│   │   │   ├── ImagePreprocessor.cs          # Бинаризация + color filter
-│   │   │   ├── LeaguePanelDetector.cs        # Детектор открытой панели
-│   │   │   ├── OcrTextPostProcessor.cs       # Нормализация текста
-│   │   │   ├── RussianOcrPostProcessor.cs    # Специфика кириллицы
-│   │   │   ├── OcrRowLayout.cs               # Раскладка строк по Y
-│   │   │   ├── ResolutionProfiles.cs         # Профили под разрешение
-│   │   │   ├── DebugOverlayService.cs        # Визуализация для отладки
-│   │   │   └── OcrInspectorWindow.xaml(.cs)  # Окно "OCR Pipeline Inspector"
-│   │   ├── Pricing/                          # Слой цен (UI-dependent)
+│   │   ├── Pricing/                          # Слой цен (UI-dependent, M1.5+)
 │   │   │   ├── Poe2ScoutClient.cs            # HTTP к api.poe2scout.com
 │   │   │   ├── PoeNinjaClient.cs             # HTTP к poe.ninja
 │   │   │   ├── PricingSourceRouter.cs        # Маршрутизация источников
-│   │   │   ├── ItemNameParser.cs             # Парсинг количества, aliases
 │   │   │   ├── PriceQuoteFormatter.cs        # Форматирование "1.5ex"
 │   │   │   └── UniqueItemTypeLookup.cs       # Категории уников
-│   │   ├── Overlay/                          # WPF-оверлей
+│   │   ├── Overlay/                          # WPF-оверлей (M1.7+)
 │   │   │   ├── OverlayWindow.xaml(.cs)       # Click-through topmost window
 │   │   │   ├── PriceRowLayout.cs             # Раскладка строк цен
 │   │   │   ├── PriceColorCalculator.cs       # Пороги → color
 │   │   │   ├── BannerWindow.xaml(.cs)        # "Нет цены" для скилл-гемов
 │   │   │   └── SetupOverlayWindow.xaml(.cs)  # Setup: рисование региона
-│   │   ├── Dashboard/                        # WPF-дашборд
+│   │   ├── Dashboard/                        # WPF-дашборд (M1.8+)
 │   │   │   ├── MainWindow.xaml(.cs)          # Главное окно
 │   │   │   ├── SettingsWindow.xaml(.cs)      # Диалог настроек
 │   │   │   ├── ChangelogWindow.xaml(.cs)     # Окно чейнджлога
@@ -67,17 +49,17 @@ AldurPrice/
 │   │   │   │   ├── SettingsViewModel.cs
 │   │   │   │   └── ChangelogViewModel.cs
 │   │   │   └── Converters/                   # Value converters
-│   │   ├── Localization/                     # Локализация
+│   │   ├── Localization/                     # Локализация (M2.1+)
 │   │   │   ├── StringLocalizer.cs            # IStringLocalizer<App>
 │   │   │   ├── StringLocalizerExtension.cs   # XAML markup extension
 │   │   │   └── LocalizationService.cs        # Смена культуры
-│   │   ├── Startup/                          # Инициализация
+│   │   ├── Startup/                          # Инициализация (M3.5+)
 │   │   │   ├── TesseractBootstrapper.cs      # Распаковка native DLL
 │   │   │   ├── AppSettingsBootstrapper.cs    # Создание config при 1-м запуске
 │   │   │   ├── UpdateChecker.cs              # GitHub Releases
 │   │   │   ├── CrashLogger.cs                # Crash-логи
 │   │   │   └── LosslessScalingDetector.cs    # Детект LS
-│   │   ├── App/                              # Фоновые воркеры
+│   │   ├── App/                              # Фоновые воркеры (M1.6+)
 │   │   │   ├── LeaguePricingWorker.cs        # Обновление цен по таймеру
 │   │   │   ├── PricingCacheRefreshWorker.cs  # Рефреш кэша
 │   │   │   ├── AdaptiveScanIntervalController.cs # Адаптивный polling
@@ -103,8 +85,13 @@ AldurPrice/
 │   │   │   ├── ItemNameTranslator.cs         # Цепочка fallback'ов
 │   │   │   ├── TranslationCache.cs           # In-memory LRU
 │   │   │   ├── RuneshapeCombinationTranslator.cs # poe2db mapping
-│   │   │   └── RussianStemmer.cs             # Snowball RU stemmer
-│   │   └── Contracts/                        # Shared interfaces
+│   │   │   ├── RussianStemmer.cs             # Snowball RU stemmer (conservative)
+│   │   │   └── RussianOcrPostProcessor.cs    # Текстовая постобработка кириллицы (M1.3)
+│   │   └── Contracts/                        # Shared interfaces для DI
+│   │       ├── IItemNameTranslator.cs        # Перевод названий
+│   │       ├── IPricingSource.cs             # poe2scout / poe.ninja
+│   │       ├── IPricingCache.cs              # Persistent кэш цен
+│   │       ├── ISystemClock.cs               # Тестопригодное время
 │   │       ├── PriceQuote.cs                 # Record
 │   │       ├── PricingSnapshot.cs            # Record
 │   │       ├── ParsedDetectedItem.cs         # Record
@@ -119,12 +106,20 @@ AldurPrice/
 │   │   │   └── 002_indexes.sql               # Индексы
 │   │   └── JsonDataLoader.cs                 # Загрузка *.ndjson, *.json
 │   │
-│   ├── AldurPrice.Ocr/                       # OCR-движки
-│   │   ├── IOcrEngine.cs                     # Интерфейс
-│   │   ├── WindowsOcrEngine.cs               # Windows.Media.Ocr
-│   │   ├── TesseractEngine.cs                # Tesseract 5.2
+│   ├── AldurPrice.Ocr/                       # OCR-движки + пайплайн (net9.0-windows10.0.19041.0)
+│   │   ├── IOcrEngine.cs                     # Интерфейс + OcrResult/OcrLine records
+│   │   ├── WindowsOcrEngine.cs               # Windows.Media.Ocr (primary)
+│   │   ├── TesseractEngine.cs                # Tesseract 5.2 (fallback, IDisposable)
 │   │   ├── OcrEngineResolver.cs              # Выбор доступного движка
-│   │   └── OcrOptions.cs                     # Опции OCR
+│   │   ├── ImagePreprocessor.cs              # Бинаризация + color filter (M1.3)
+│   │   ├── LeaguePanelDetector.cs            # Детектор открытой панели (M1.3)
+│   │   ├── OcrPreprocessOptions.cs           # Опции предобработки (M1.3)
+│   │   ├── OcrPipeline.cs                    # Оркестрация (M1.3)
+│   │   ├── OcrLeagueWindowReader.cs          # Главный цикл (M1.10)
+│   │   ├── OcrRowLayout.cs                   # Раскладка строк по Y (M1.10)
+│   │   ├── ResolutionProfiles.cs             # Профили под разрешение (M1.10)
+│   │   ├── DebugOverlayService.cs            # Визуализация для отладки (M3.6)
+│   │   └── OcrInspectorWindow.xaml(.cs)      # Окно "OCR Pipeline Inspector" (M3.6)
 │   │
 │   └── AldurPrice.Capture/                   # Захват экрана
 │       ├── ICaptureStrategy.cs
@@ -133,21 +128,21 @@ AldurPrice/
 │       └── CaptureOptions.cs
 │
 ├── tests/
-│   ├── AldurPrice.Core.Tests/                # Unit-тесты логики
-│   ├── AldurPrice.Ocr.Tests/                 # Тесты OCR (mock bitmaps)
+│   ├── AldurPrice.Core.Tests/                # Unit-тесты логики (net9.0, кроссплатформенный)
+│   ├── AldurPrice.Ocr.Tests/                 # Тесты OCR (net9.0-windows, mock bitmaps) — M1.10
 │   ├── AldurPrice.Data.Tests/                # Тесты SQLite (in-memory)
 │   ├── AldurPrice.UI.Tests/                  # UI-тесты (FlaUI)
 │   └── AldurPrice.Integration/               # Интеграционные (HTTP mock)
 │
 ├── ocr/
-│   ├── translations/                         # *.ndjson из Exiled Exchange 2
+│   ├── translations/                         # *.ndjson из Exiled Exchange 2 (M1.5)
 │   │   ├── eng.ndjson
 │   │   ├── rus.ndjson
 │   │   └── LICENSE                           # Лицензия Exiled Exchange 2
-│   ├── tesseract/                            # traineddata для Tesseract
+│   ├── tesseract/                            # traineddata для Tesseract (M1.10 / MSBuild target)
 │   │   ├── eng.traineddata
 │   │   └── rus.traineddata
-│   ├── runeshape-combinations-ru.json        # Маппинг рун (из poe2db.tw)
+│   ├── runeshape-combinations-ru.json        # Маппинг рун (из poe2db.tw) — ✅ embedded в Core
 │   └── unique-category-map.json              # Мультиязычные ключ. слова
 │
 ├── scripts/
@@ -167,6 +162,11 @@ AldurPrice/
 └── AldurPrice.slnx                           # Solution file
 ```
 
+> **Примечание к структуре** (см. также STATUS.md → Architecture deviations):
+> - **AD-001**: Shared-интерфейсы для DI (`IItemNameTranslator`, `IPricingSource`, `IPricingCache`, `ISystemClock`) живут в `AldurPrice.Core/Contracts/`. В `AldurPrice/Contracts/` только UI-only интерфейсы (`ILeagueWindowReader`, `IOverlayRenderer`). Иначе цикл `AldurPrice.Data → AldurPrice` (если интерфейсы в AldurPrice, Data не может их реализовать без ссылки на AldurPrice, а AldurPrice ссылается на Data для регистрации в DI).
+> - **AD-003**: Все OCR-компоненты (движки + пайплайн) живут в `AldurPrice.Ocr/`. Раньше в этом документе они разделялись между `AldurPrice.Ocr/` (движки) и `AldurPrice/OCR/` (пайплайн). Разделение создавало цикл `AldurPrice → AldurPrice.Ocr → AldurPrice` (пайплайн зависит от `OcrOptions` из `AldurPrice/Configuration/`).
+> - **AD-004**: `RussianOcrPostProcessor` живёт в `AldurPrice.Core/Translation/`, не в `AldurPrice.Ocr/`. Это чистая текстовая обработка, помещение в Core позволяет тестировать из кроссплатформенного `AldurPrice.Core.Tests`.
+
 ### 1.1. Обоснование разбиения на проекты
 
 Разбиение на 6 проектов даёт три конкретных benefit:
@@ -181,50 +181,62 @@ AldurPrice/
 
 ### 2.1. Состав сервисов
 
-Все сервисы регистрируются в `App.xaml.cs` через `IServiceCollection`:
+Все сервисы регистрируются в `App.xaml.cs` через `IServiceCollection`. Текущее состояние (M1.3):
 
 ```csharp
-// Configuration
-services.AddSingleton<IOptionsMonitor<AppOptions>, AppOptions>();
-services.AddSingleton<IOptionsMonitor<OcrOptions>, OcrOptions>();
-services.AddSingleton<IOptionsMonitor<PricingOptions>, PricingOptions>();
-services.AddSingleton<SettingsController>();
+// Configuration (strongly-typed options)
+services.Configure<AppOptions>(configuration.GetSection("App"));
+services.Configure<PricingOptions>(configuration.GetSection("Pricing"));
+services.Configure<OcrOptions>(configuration.GetSection("OCR"));
+services.Configure<TranslationOptions>(configuration.GetSection("Translation"));
+services.Configure<WindowOptions>(configuration.GetSection("Window"));
 
-// Capture
-services.AddSingleton<ICaptureStrategy, PrintWindowCapture>();  // default
-services.AddSingleton<FrameDiffer>();
-services.AddSingleton<Poe2WindowLocator>();
-services.AddSingleton<Poe2WindowMonitor>();
+// Core (чистая логика)
+services.AddSingleton<Core.Pricing.ItemNameParser>();
+services.AddSingleton<Core.Pricing.Levenshtein>();
+services.AddSingleton<Core.Pricing.FallbackProvider>();
+services.AddSingleton<Core.Pricing.TierFallback>();
+services.AddSingleton<Core.Translation.RussianStemmer>();
+services.AddSingleton<Core.Translation.TranslationCache>();
+services.AddSingleton<Core.Translation.RuneshapeCombinationTranslator>();
+services.AddSingleton<Core.Translation.RussianOcrPostProcessor>();
+services.AddSingleton<Core.Contracts.IItemNameTranslator, Core.Translation.ItemNameTranslator>();
 
-// OCR
-services.AddSingleton<IOcrEngine, WindowsOcrEngine>();          // primary
-services.AddSingleton<IOcrEngine, TesseractEngine>();            // fallback (keyed)
-services.AddSingleton<ImagePreprocessor>();
-services.AddSingleton<LeaguePanelDetector>();
-services.AddSingleton<OcrPipeline>();
+// OCR (M1.3)
+services.AddSingleton<Ocr.WindowsOcrEngine>();
+services.AddSingleton<Ocr.TesseractEngine>();
+services.AddSingleton<Ocr.OcrEngineResolver>();
+services.AddSingleton<Ocr.ImagePreprocessor>();
+services.AddSingleton<Ocr.LeaguePanelDetector>();
+services.AddSingleton<Ocr.OcrPipeline>();
+// M1.4: services.AddSingleton<Ocr.IOcrEngine>(sp => sp.GetRequiredService<Ocr.OcrEngineResolver>().Resolve());
 
-// Translation
-services.AddSingleton<IItemNameTranslator, ItemNameTranslator>();
-services.AddSingleton<TranslationCache>();
-services.AddSingleton<RuneshapeCombinationTranslator>();
+// Capture (M1.4)
+services.AddSingleton<Capture.PrintWindowCapture>();
+// M1.4: services.AddSingleton<Capture.ICaptureStrategy>(sp => sp.GetRequiredService<Capture.PrintWindowCapture>());
 
-// Pricing
+// UI (WPF)
+services.AddSingleton<MainWindow>();
+```
+
+Запланированные регистрации (M1.5+):
+
+```csharp
+// Pricing (M1.5+)
 services.AddHttpClient<Poe2ScoutClient>("poe2scout");
 services.AddHttpClient<PoeNinjaClient>("poe.ninja");
 services.AddSingleton<PricingSourceRouter>();
-services.AddSingleton<IPricingCache, SqlitePricingCache>();
-services.AddSingleton<ItemNameParser>();
+services.AddSingleton<Core.Contracts.IPricingCache, Data.SqlitePricingCache>();  // M3.4
 
-// App services
+// App services (M1.6+, M3.7+)
 services.AddHostedService<LeaguePricingWorker>();
 services.AddHostedService<PricingCacheRefreshWorker>();
 services.AddSingleton<CrashLogger>();
 services.AddSingleton<UpdateChecker>();
-services.AddSingleton<ISystemClock, SystemClock>();
+services.AddSingleton<Core.Contracts.ISystemClock, SystemClock>();
 services.AddSingleton<SingleInstanceGuard>();
 
-// UI (WPF)
-services.AddSingleton<MainWindow>();
+// UI (M1.8+)
 services.AddSingleton<MainViewModel>();
 services.AddTransient<SettingsViewModel>();
 ```
